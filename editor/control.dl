@@ -1,0 +1,7 @@
+import ../../dynlex-ui/ui/document_declarations.dl
+
+editor {C string:name} containing {C string:initial} using {UI appearance reference:appearance} means: a UI text surface name styled "source-editor" containing initial using appearance
+read only editor {C string:name} containing {C string:initial} using {UI appearance reference:appearance} means: (editor name containing initial using appearance) with read only text
+
+to get [the UI element] {UI reference:node} [is a source editor]:
+    return node's variant = "source-editor"

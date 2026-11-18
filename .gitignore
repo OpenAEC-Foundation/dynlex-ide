@@ -1,0 +1,4 @@
+.worktrees/
+.cache/
+build/
+__pycache__/

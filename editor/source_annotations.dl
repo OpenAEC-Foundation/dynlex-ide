@@ -20,6 +20,9 @@ class:
         name as a C string
         ink as UI paint
 
+the dark UI variable ink means: UI ink 214 211 209
+the light UI variable ink means: UI ink 87 83 78
+
 the default UI source token theme means: [
     @intrinsic("construct", UI source token style, "comment", UI ink 149 161 152),
     @intrinsic("construct", UI source token style, "string", UI ink 230 196 124),
@@ -29,9 +32,9 @@ the default UI source token theme means: [
     @intrinsic("construct", UI source token style, "type", UI ink 104 211 190),
     @intrinsic("construct", UI source token style, "patternDefinition", UI ink 104 211 190),
     @intrinsic("construct", UI source token style, "function", UI ink 104 211 190),
-    @intrinsic("construct", UI source token style, "variable", UI ink 159 199 245),
-    @intrinsic("construct", UI source token style, "parameter", UI ink 159 199 245),
-    @intrinsic("construct", UI source token style, "property", UI ink 159 199 245),
+    @intrinsic("construct", UI source token style, "variable", the dark UI variable ink),
+    @intrinsic("construct", UI source token style, "parameter", the dark UI variable ink),
+    @intrinsic("construct", UI source token style, "property", the dark UI variable ink),
     # Generated dark call colors begin
     @intrinsic("construct", UI source token style, "function.callDepth0", UI ink 184 229 255),
     @intrinsic("construct", UI source token style, "intrinsic.callDepth0", UI ink 184 229 255),
@@ -63,9 +66,9 @@ the light UI source token theme means: [
     @intrinsic("construct", UI source token style, "type", UI ink 146 64 14),
     @intrinsic("construct", UI source token style, "patternDefinition", UI ink 146 64 14),
     @intrinsic("construct", UI source token style, "function", UI ink 146 64 14),
-    @intrinsic("construct", UI source token style, "variable", UI ink 54 54 62),
-    @intrinsic("construct", UI source token style, "parameter", UI ink 54 54 62),
-    @intrinsic("construct", UI source token style, "property", UI ink 54 54 62),
+    @intrinsic("construct", UI source token style, "variable", the light UI variable ink),
+    @intrinsic("construct", UI source token style, "parameter", the light UI variable ink),
+    @intrinsic("construct", UI source token style, "property", the light UI variable ink),
     # Generated light call colors begin
     @intrinsic("construct", UI source token style, "function.callDepth0", UI ink 48 79 195),
     @intrinsic("construct", UI source token style, "intrinsic.callDepth0", UI ink 48 79 195),

@@ -2,6 +2,19 @@ import ../../../editor/control.dl
 import ../../../editor/source_annotations.dl
 import ../../../../dynlex-ui/ui/application.dl
 
+to verify variable colors in {an array:theme} expecting {UI paint:expected}:
+    set legend to a JSON array containing [a new JSON-RPC text for "definition", a new JSON-RPC text for "constant", a new JSON-RPC text for "callDepth0"]
+    for each kind in ["variable", "parameter", "property"]:
+        for each bits in [0, 1, 2, 3, 4]:
+            set index to the UI source token style index for (the string form of kind) with modifiers bits from legend using theme
+            require condition (index >= 0) reporting "A variable has no token color"
+            set ink to (the item at index in theme)'s ink
+            require condition (((ink's red = expected's red) and (ink's green = expected's green)) and (ink's blue = expected's blue)) reporting "Variable roles must share the OpenAEC foreground"
+    free legend
+
+verify variable colors in (the default UI source token theme) expecting (UI ink 214 211 209)
+verify variable colors in (the light UI source token theme) expecting (UI ink 87 83 78)
+
 document example:
     editor "Source" containing "😀 go\nnext" using no UI appearance
 
@@ -69,11 +82,11 @@ set document's tokens to a JSON object containing [JSON child "data" is (a JSON 
 mark UI text (document's source) in layer "execution" at priority 10 in node in instance
 add UI text mark (UI ink 40 90 150) from 8 to 12 with opacity 80 in layer "execution" in node in instance
 apply UI source colors from document to node in instance using (the light UI source token theme)
-require condition ((value's colors' ink's red = 54) and (value's last color's ink's red = 48)) reporting "The light source theme lost its base or canonical nested-call colors"
+require condition ((value's colors' ink's red = 87) and (value's last color's ink's red = 48)) reporting "The light source theme lost its base or canonical nested-call colors"
 require condition ((value's last color's ink's green = 79) and (value's last color's ink's blue = 195)) reporting "The light call palette did not follow the compiler's canonical colors"
 require condition ((value's colors' next = value's last color) and (value's last color's end = 7)) reporting "The light theme colored an unmatched token"
 apply UI source colors from document to node in instance using (the default UI source token theme)
-require condition ((value's colors' ink's red = 159) and (value's last color's ink's red = 184)) reporting "Switching back to the dark source theme retained light colors"
+require condition ((value's colors' ink's red = 214) and (value's last color's ink's red = 184)) reporting "Switching back to the dark source theme retained light colors"
 set execution to the UI text mark layer named "execution" in node in instance
 require condition ((execution's marks' start = 8) and (execution's marks' ink's red = 40)) reporting "Switching source themes changed the execution overlay"
 edit UI source document document to (the string form of "changed") at 2.0 seconds

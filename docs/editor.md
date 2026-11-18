@@ -195,7 +195,11 @@ source editor.
 
 Use `the light UI source token theme` for a light editor and
 `the default UI source token theme` for a dark editor. Both use the compiler's
-canonical colors for nested calls. Tokens without a matching style inherit the
+canonical colors for nested calls. Variables, named parameters and variable arguments share
+one neutral foreground per theme. Studio uses the OpenAEC secondary text colors,
+`#D6D3D1` on dark backgrounds and `#57534E` on light backgrounds. [OpenAEC color tokens](https://github.com/OpenAEC-Foundation/OpenAEC-style-book/blob/main/packages/tokens/tokens/colors.json)
+
+Tokens without a matching style inherit the
 editor's foreground; an explicit `*` selector can color every token instead.
 Changing themes keeps execution backgrounds, editor contents and undo history.
 

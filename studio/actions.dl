@@ -1,4 +1,4 @@
-import ../../../programs/controller.dl
+import programs.dl
 
 to get follow Studio action {string:destination} in {a pointer to website state:state}:
     if destination = "action:toggle-ide-theme":

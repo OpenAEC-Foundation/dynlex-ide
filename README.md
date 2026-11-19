@@ -19,7 +19,7 @@ Studio’s **Files** panel shows the current program or shader project. Enter a 
 
 Run always compiles the project entry with all its files. Studio saves editable projects in this browser and keeps shared examples in separate drafts. Use **Save source** to download the current project file.
 
-Ctrl-click a symbol on Windows or Linux, or Cmd-click on macOS, to open its definition. You can also place the caret and use **Definition** or F12. **Back** or Alt+Left returns to the previous location.
+Ctrl-click a symbol on Windows or Linux, or Cmd-click on macOS, to open its definition. On an import path, this opens the file that the compiler resolved. You can also place the caret and use **Definition** or F12. **Back** or Alt+Left returns to the previous location.
 
 ## Embed the editor
 

@@ -35,10 +35,7 @@ to get [prepare website program] {integer:index} in {a pointer to website state:
 
 to get [the source editor of website program] {integer:index} in {a pointer to website state:state}:
     set description to the item at index in (the website program descriptions)
-    set instance to state's view's instance
-    set editor to the active UI editor within (the control labeled (description's source) in instance) in instance
-    require condition (editor != @intrinsic("construct", UI reference)) reporting "The program source has no active editor"
-    return the UI source editor labeled (editor's text) in (state's language)
+    return the program source within (description's source) in state
 
 to run website [program] {integer:index} in {a pointer to website state:state}:
     if prepare website program index in state:

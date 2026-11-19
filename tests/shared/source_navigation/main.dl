@@ -57,9 +57,23 @@ loop while index < the length of labels:
     queue UI input of kind 3 key 263 at 0.0 0.0 with modifiers 4 containing "" in (the address of view)
     process UI input in (the address of view)
     require condition ((editor's document = main) and (view's selection's caret = 3)) reporting "Alt+Left did not restore the original source location."
-    queue UI input of kind 3 key 301 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+    ignore update UI view (the address of view)
+    set run to view's texts
+    set found to false
+    loop while (run != (0 as a pointer to UI text run)) and (found = false):
+        set found to (run's source's element = editor's node) and (run's generation = view's paint count)
+        if found = false:
+            set run to run's next
+    require condition (run != (0 as a pointer to UI text run)) reporting "The navigation fixture did not draw its source."
+    set point to UI point (a UI point at (run's origin's x + 1.0) and (run's origin's y - 4.0)) transformed by (run's transform)
+    set modifier to 2 if (index = 0), else 8
+    queue UI input of kind 1 key 0 at (point's x) (point's y) with modifiers modifier containing "" in (the address of view)
+    queue UI input of kind 2 key 1 at 0.0 0.0 with modifiers modifier containing "" in (the address of view)
+    queue UI input of kind 2 key 0 at 0.0 0.0 with modifiers modifier containing "" in (the address of view)
     process UI input in (the address of view)
+    require condition (navigation's phase = 1) reporting "Ctrl-click or Cmd-click did not request a definition."
     set query to navigation's query
+    require condition ((the JSON number named "character" in (the JSON member named "position" in (query's parameters))) = 0.0) reporting "Modifier-click followed the old caret instead of the clicked glyph."
     set UI text of (editor's node) in window to "edited"
     synchronize UI source workspace workspace at 2.0 seconds
     answer navigation query query with (a JSON object containing [JSON text "uri" is (imported's uri), JSON child "range" is (an LSP range from line 1 and character 0 to line 1 and character 1)])

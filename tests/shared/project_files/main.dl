@@ -27,7 +27,7 @@ require condition ((the JSON text named "tools/answers.dl" in (project's files))
 require condition ((the new Studio file error for (the string form of "../outside.dl") in project) != "") reporting "The file picker allowed traversal."
 require condition ((the new Studio file error for (the string form of "tools/answers.dl/child.dl") in project) != "") reporting "A file became a directory."
 require condition ((the new Studio file error for (the string form of "lib/std.dl") in project) != "") reporting "Library source was writable."
-delete Studio document helper in editor in (the address of view)
+delete Studio document (editor's document) in editor in (the address of view)
 require condition ((editor's document = project's entry) and (project's files' length = 0)) reporting "Removing the active file left it in the project."
 set fresh to add Studio file (the string form of "tools/answers.dl") containing (the string form of "") to editor
 require condition ((fresh != helper) and ((fresh's source = "") and (helper's available = false))) reporting "Recreating a file resurrected a deleted buffer."

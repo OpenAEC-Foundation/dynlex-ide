@@ -1,14 +1,5 @@
 # Project-owned files are editable documents in the same snapshot used by Run and the LSP.
 import source_buffers.dl
-import lib/file_uri.dl
-
-to get [the project URI for] {string:path} [under] {string:root}:
-    set directory to the path from root interpreted as a file URI using the POSIX path style
-    require condition (directory's success) reporting "The project must have a file URI"
-    set joined to (directory's value) joined with path using the POSIX path style
-    set result to the file URI representing (joined's value) using the POSIX path style
-    require condition (result's success) reporting "A project file could not be represented as a URI"
-    return result's value
 
 to get [a Studio source path error for] {string:path}:
     if (path's length < 4) or ((path has ".dl" at offset (path's length - 3)) = false):
@@ -63,15 +54,16 @@ to [rename Studio document] {a pointer to UI source document:document} [to] {str
     invalidate UI source project project
 
 to [delete Studio document] {a pointer to UI source document:document} [in] {a pointer to UI source editor:editor} [in] {a pointer to UI view:view}:
-    set project to document's project
-    require condition ((document != project's entry) and (document's available and document's writable)) reporting "The main file and libraries cannot be deleted"
-    if editor's document = document:
+    set removed to document
+    set project to removed's project
+    require condition ((removed != project's entry) and (removed's available and removed's writable)) reporting "The main file and libraries cannot be deleted"
+    if editor's document = removed:
         show UI source document (project's entry) in editor in view
-    remove JSON member (document's filename) from (project's files)
-    set document's available to false
-    set document's uri and document's filename to ""
-    set document's writable to false
-    increment document's revision
+    remove JSON member (removed's filename) from (project's files)
+    set removed's available to false
+    set removed's uri and removed's filename to ""
+    set removed's writable to false
+    increment removed's revision
     increment project's file generation
     refresh the context of UI source project project
     invalidate UI source project project

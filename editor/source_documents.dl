@@ -3,6 +3,7 @@ import lib/sections.dl
 import lib/json_builders.dl
 import lib/json_edit.dl
 import lib/lsp_json.dl
+import lib/file_uri.dl
 import source_query_types.dl
 
 class:
@@ -49,6 +50,14 @@ class:
         token types as a pointer to JSON value
         token modifiers as a pointer to JSON value
         queries as a pointer to UI source query
+
+to get [the project URI for] {string:path} [under] {string:root}:
+    set directory to the path from root interpreted as a file URI using the POSIX path style
+    require condition (directory's success) reporting "The project must have a file URI"
+    set joined to (directory's value) joined with path using the POSIX path style
+    set result to the file URI representing (joined's value) using the POSIX path style
+    require condition (result's success) reporting "A project file could not be represented as a URI"
+    return result's value
 
 # Analysis profiles are ordinary protocol data; clients may supply any supported set.
 to get [UI CPU analysis]:
@@ -218,20 +227,29 @@ to [configure UI source document] {a pointer to UI source document:document} [na
     set project's profiles to profiles
     set {previous files} to project's files
     set project's files to copied
+    set location to the path from uri interpreted as a file URI using the POSIX path style
+    require condition (location's success) reporting "Source configuration requires a file URI"
+    set offset to location's value's length - filename's length
+    require condition ((offset > 0) and (location's value has filename at offset offset)) reporting "The entry path does not match its file URI"
+    set root to the substring of (location's value) from 0 spanning offset bytes
     set imported to project's documents
     loop while imported != @intrinsic("construct", a pointer to UI source document):
-        if imported != document:
-            set provided to copied has JSON member named (imported's filename)
-            if provided or (previous files has JSON member named (imported's filename)):
-                set changed to imported's available != provided
-                set imported's available to provided
-                if provided:
-                    set source to the JSON text named (imported's filename) in copied
-                    if imported's source != source:
-                        set imported's source to source
-                        set changed to true
-                if changed:
-                    increment imported's revision
+        if (imported != document) and (imported's uri != ""):
+            set location to the path from (imported's uri) interpreted as a file URI using the POSIX path style
+            require condition (location's success) reporting "An imported source has an invalid file URI"
+            if location's value has root at offset 0:
+                set path to the substring of (location's value) from (root's length) spanning (location's value's length - root's length) bytes
+                set provided to copied has JSON member named path
+                if provided or (previous files has JSON member named path):
+                    set changed to imported's available != provided
+                    set imported's available to provided
+                    if provided:
+                        set source to the JSON text named path in copied
+                        if imported's source != source:
+                            set imported's source to source
+                            set changed to true
+                    if changed:
+                        increment imported's revision
         set imported to imported's next
     free previous files
     refresh the context of UI source document document

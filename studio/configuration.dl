@@ -4,7 +4,7 @@ import ../../../state.dl
 to [configure the website source editor] {C string:label} [named] {string:filename} [prefixed by] {string:prefix} [using] {a pointer to JSON value:profiles} [in] {a pointer to website state:state}:
     set editor to the UI source editor labeled label in (state's language)
     set document to editor's document's project's entry
-    configure UI source document document named filename at ("file:///workspace/" + filename) prefixed by prefix using profiles with files (document's project's files)
+    configure UI source document document named filename at (the project URI for filename under (state's language's client's root)) prefixed by prefix using profiles with files (document's project's files)
 
 to [configure the website shader source named] {string:filename} [in] {a pointer to website state:state}:
     set profiles to UI fragment analysis

@@ -5,7 +5,7 @@ set files to a JSON object containing [JSON text "helper.dl" is "helper means: 7
 configure UI source document main named "main.dl" at (main's uri) prefixed by "" using UI CPU analysis with files files
 free files
 set helper to a UI source document named "helper.dl" at "file:///workspace/helper.dl" containing "helper means: 7" in (main's project)
-set library to a UI source document named "std.dl" at "file:///lib/std.dl" containing "external library" in (main's project)
+set library to a UI source document named "helper.dl" at "file:///lib/helper.dl" containing "external library" in (main's project)
 set query to request UI source feature "textDocument/hover" at byte 0 in helper
 set revision to helper's revision
 

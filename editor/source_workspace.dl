@@ -35,6 +35,7 @@ class:
         back as UI reference
         home as UI reference
         location as UI reference
+        definition as UI reference
         outline as UI reference
         instances as UI reference
         fixes as UI reference
@@ -63,6 +64,7 @@ to [discover UI source editors within] {UI reference:node} [in] {a pointer to UI
             set entry's back to the UI element labeled "Back" in scope
             set entry's home to the UI element labeled "Main file" in scope
             set entry's location to the UI element labeled "Location" in scope
+            set entry's definition to the UI element labeled "Definition" in scope
             set entry's outline to the UI element labeled "Outline" in scope
             set entry's instances to the UI element labeled "Instances" in scope
             set entry's fixes to the UI element labeled "Fixes" in scope

@@ -21,7 +21,7 @@ subprocess.run([sys.executable, ROOT / 'scripts/generate_source_colors.py', '--d
 with tempfile.TemporaryDirectory(dir=ROOT / 'build') as temporary:
     project = Path(temporary)
     ide = project / 'packages/dynlex-ide'
-    for name in ['editor', 'tests']:
+    for name in ['editor', 'studio', 'tests']:
         shutil.copytree(ROOT / name, ide / name)
     for name in ['ui', 'testing', 'platform']:
         shutil.copytree(ui / name, project / 'packages/dynlex-ui' / name)

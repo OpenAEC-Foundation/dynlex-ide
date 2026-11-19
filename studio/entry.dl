@@ -39,6 +39,10 @@ to apply website editor entry {a pointer to JSON value:query} in {a pointer to w
     if key = state's editor entry:
         return nothing
     set state's editor entry to key
+    if (query's length = 0) and (state's studio files' opened):
+        loop slot from 0 to 2:
+            ignore switch Studio project for mode slot to session (the string form of "") in state
+        return nothing
     set requested to the website query text named "mode" in query
     if ((requested != "") and (requested != "program")) and (requested != "shader"):
         reject website source link in state
@@ -56,7 +60,10 @@ to apply website editor entry {a pointer to JSON value:query} in {a pointer to w
             if description's id = scene:
                 select website editor mode 1 in state
                 set state's shader editor's description to description
-                load the website shader source in state
+                if switch Studio project for mode 1 to session key in state:
+                    run website program 2 in state
+                else:
+                    load the website shader source in state
                 return nothing
             increment index
         reject website source link in state
@@ -82,14 +89,16 @@ to apply website editor entry {a pointer to JSON value:query} in {a pointer to w
     select website editor mode mode in state
     set state's shader editor's description to the custom website shader
     set state's shader editor's source failed to false
-    if mode = 1:
-        configure the website shader source named name in state
-    else:
-        configure the website source editor "IDE source" named name prefixed by "" using UI CPU analysis in state
-    if (source's length > 0) or (encoded's length > 0):
-        load website source ((the website source editor in state)'s node's text) from source in state
-    else if mode = 1:
-        load website source "Shader source" from (the string form of (the default website shader source)) in state
+    set restored to switch Studio project for mode mode to session key in state
+    if restored = false:
+        if mode = 1:
+            configure the website shader source named name in state
+        else:
+            configure the website source editor "IDE source" named name prefixed by "" using UI CPU analysis in state
+        if (source's length > 0) or (encoded's length > 0):
+            load website source ((the website source editor in state)'s node's text) from source in state
+        else if mode = 1:
+            load website source "Shader source" from (the string form of (the default website shader source)) in state
     set the text of "IDE status" in instance to "Ready."
     if mode = 0:
         set the text of "IDE output" in instance to "Run the program to see its output."

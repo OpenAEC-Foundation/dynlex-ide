@@ -43,3 +43,16 @@ appearance IDE preview appearance:
     height is 320
     background is UI ink 9 11 18
     corner radius is 12
+
+appearance IDE file tree appearance:
+    use code appearance
+    text is palette color "Studio text"
+    background is palette color "Studio surface"
+    height is 154
+    padding is 8
+    font size is 13
+    lines do not wrap
+
+appearance IDE file actions appearance:
+    columns are 3
+    gap is 6

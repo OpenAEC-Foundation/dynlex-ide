@@ -11,8 +11,31 @@ import source_tool_focus.dl
 import source_inspection.dl
 import source_actions.dl
 
+to get [follow a UI source definition under the pointer in] {a pointer to UI source tools:tools}:
+    set view to tools's view
+    if ((view's input kind != 2) or (view's input code != 1)) or ((view's modifiers != 2) and (view's modifiers != 8)):
+        return false
+    set point to the UI cursor in view
+    set run to the UI text hit at point in view
+    if run = (0 as a pointer to UI text run):
+        return false
+    set editor to the UI source editor under run in (tools's workspace as a pointer to UI source workspace)
+    if editor = (0 as a pointer to UI source editor):
+        return false
+    set position to the UI source byte under point in run
+    if (position < 0) or (editor's document's available = false):
+        return false
+    set editor's current's anchor and editor's current's caret to position
+    restore UI source location (editor's current) in editor in view
+    if focus UI source tools tools:
+        request a UI source definition in tools
+        return true
+    return false
+
 to get [read UI source tools] {a pointer:context} [in] {a pointer to UI view:view}:
     set tools to context as a pointer to UI source tools
+    if follow a UI source definition under the pointer in tools:
+        return true
     if read UI source hover in tools:
         return true
     set previous to tools's source

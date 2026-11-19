@@ -45,6 +45,8 @@ to [update UI source navigation in] {a pointer to UI source tools:tools}:
     if result's kind = the JSON null kind:
         if navigation's phase = 2:
             report UI source tools tools saying "Source unavailable."
+        else:
+            report UI source tools tools saying "No definition found."
         cancel UI source navigation navigation
         return nothing
     if navigation's phase = 1:

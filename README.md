@@ -13,6 +13,14 @@ python3 -m http.server --bind 127.0.0.1 --directory build/site 8000
 
 Open <http://127.0.0.1:8000/ide/>. The build fetches the pinned [website host](https://github.com/OpenAEC-Foundation/dynlex-website), installs its locked build tools, and compiles this checkout's Studio sources with its pinned compiler and UI packages. This preserves the production routes, shader gallery, saved theme and links from documentation. Deployment belongs to the website repository.
 
+## Work with project files
+
+Studio’s **Files** panel shows the current program or shader project. Enter a project-relative path such as `tools/math.dl` in **File path** and choose **New file**. Select a file to edit it. **Rename file** accepts a new path, including a different directory. Update source imports that refer to the old name. **Delete file** asks for confirmation. Expand **Libraries** to browse the read-only modules supplied by this build.
+
+Run always compiles the project entry with all its files. Studio saves editable projects in this browser and keeps shared examples in separate drafts. Use **Save source** to download the current project file.
+
+Ctrl-click a symbol on Windows or Linux, or Cmd-click on macOS, to open its definition. You can also place the caret and use **Definition** or F12. **Back** or Alt+Left returns to the previous location.
+
 ## Embed the editor
 
 The `editor/` library depends on [dynlex-ui](https://github.com/OpenAEC-Foundation/dynlex-ui). Mount the two packages next to each other. Import `editor/control.dl` for a bare code editor, `editor/source_panes.dl` for a pane with navigation and Find/Replace, or `editor/source_tools.dl` for the workspace and language-service controller. See the [editor API](docs/editor.md).

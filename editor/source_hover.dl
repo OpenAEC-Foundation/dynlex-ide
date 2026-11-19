@@ -13,6 +13,17 @@ to get [the UI source editor under] {a pointer to UI text run:run} [in] {a point
         set editor to editor's next
     return editor
 
+# Definition and hover inspect the glyph beneath the pointer, including its trailing half.
+to get [the UI source byte under] {UI point:point} [in] {a pointer to UI text run:run}:
+    set local to UI text position of point in run
+    set x to local's x - run's origin's x
+    if (x < 0.0) or (x >= (the width of (run's text) using (run's typeface))):
+        return -1
+    set offset to the UI text byte at x in run
+    if (offset > 0) and (x < (the width of (the UI text prefix of (run's text) ending at offset) using (run's typeface))):
+        set offset to the previous UTF8 boundary before offset in (run's text)
+    return run's start + offset
+
 to get [UI source hover] {a pointer to UI source hover:hover} [is current]:
     if hover's phase = 0:
         return false
@@ -64,12 +75,11 @@ to [update UI source hover in] {a pointer to UI source tools:tools}:
     if (((editor's document's available = false) or (run's source's text != editor's document's source)) or (layout's content != editor's document's source)) or ((UI source element (editor's node) is active within (view's instance's description) in (view's instance)) = false):
         dismiss UI source hover hover in view
         return nothing
-    set local to UI text position of cursor in run
-    if (local's x < run's origin's x) or (local's x > (run's origin's x + (the width of (run's text) using (run's typeface)))):
+    set position to the UI source byte under cursor in run
+    if position < 0:
         if (retain UI source hover while leaving hover in view) = false:
             dismiss UI source hover hover in view
         return nothing
-    set position to run's start + (the UI text byte at (local's x - run's origin's x) in run)
     if ((current = false) or (hover's editor != editor)) or (hover's position != position):
         if retain UI source hover while leaving hover in view:
             return nothing

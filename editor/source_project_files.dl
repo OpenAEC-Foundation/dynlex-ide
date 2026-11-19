@@ -1,0 +1,77 @@
+# Project-owned files are editable documents in the same snapshot used by Run and the LSP.
+import source_buffers.dl
+import lib/file_uri.dl
+
+to get [the project URI for] {string:path} [under] {string:root}:
+    set directory to the path from root interpreted as a file URI using the POSIX path style
+    require condition (directory's success) reporting "The project must have a file URI"
+    set joined to (directory's value) joined with path using the POSIX path style
+    set result to the file URI representing (joined's value) using the POSIX path style
+    require condition (result's success) reporting "A project file could not be represented as a URI"
+    return result's value
+
+to get [a Studio source path error for] {string:path}:
+    if (path's length < 4) or ((path has ".dl" at offset (path's length - 3)) = false):
+        return the string form of "Enter a relative .dl file path."
+    set normalized to path lexically normalized using the POSIX path style
+    if ((normalized's success = false) or (normalized's value != path)) or ((path has "/" at offset 0) or (path has "../" at offset 0)):
+        return the string form of "Use a path inside this project."
+    loop index from 0 to (path's length):
+        set code to (the character at index in path) as an integer
+        if (code < 32) or ((code = 92) or (code = 127)):
+            return the string form of "Use forward slashes and printable characters in file paths."
+    return the string form of ""
+
+to get [the new Studio file error for] {string:path} [in] {a pointer to UI source project:project}:
+    set error to a Studio source path error for path
+    if error != "":
+        return error
+    if ((path has "lib/" at offset 0) or (path has "packages/" at offset 0)) or (path has "site/language/" at offset 0):
+        return the string form of "This directory belongs to a library."
+    set paths to the UI source files of project
+    set conflict to false
+    loop index from 0 to (paths's length):
+        set other to (the item at index in (paths's members))'s name
+        if ((other = path) or (other has (path + "/") at offset 0)) or (path has (other + "/") at offset 0):
+            set conflict to true
+    free paths
+    return (the string form of "A file or folder already uses that path.") if conflict, else (the string form of "")
+
+to get [add Studio file] {string:path} [containing] {string:text} [to] {a pointer to UI source editor:editor}:
+    set project to editor's document's project
+    set uri to the project URI for path under (editor's workspace's client's root)
+    set document to a UI source document named path at uri containing text in project
+    set document's writable to true
+    set JSON member (JSON text path is text) in (project's files)
+    increment project's file generation
+    refresh the context of UI source project project
+    invalidate UI source project project
+    return document
+
+to [rename Studio document] {a pointer to UI source document:document} [to] {string:path} [in] {a pointer to UI source editor:editor}:
+    set project to document's project
+    require condition (document's writable and document's available) reporting "Only project files can be renamed"
+    if document != project's entry:
+        remove JSON member (document's filename) from (project's files)
+        set JSON member (JSON text path is (document's source)) in (project's files)
+    set document's filename to path
+    set document's uri to the project URI for path under (editor's workspace's client's root)
+    refresh the context of UI source document document
+    increment document's revision
+    increment project's file generation
+    refresh the context of UI source project project
+    invalidate UI source project project
+
+to [delete Studio document] {a pointer to UI source document:document} [in] {a pointer to UI source editor:editor} [in] {a pointer to UI view:view}:
+    set project to document's project
+    require condition ((document != project's entry) and (document's available and document's writable)) reporting "The main file and libraries cannot be deleted"
+    if editor's document = document:
+        show UI source document (project's entry) in editor in view
+    remove JSON member (document's filename) from (project's files)
+    set document's available to false
+    set document's uri and document's filename to ""
+    set document's writable to false
+    increment document's revision
+    increment project's file generation
+    refresh the context of UI source project project
+    invalidate UI source project project

@@ -1,0 +1,50 @@
+import ../../../editor/source_project_files.dl
+import ../../../studio/file_tree.dl
+import ../../../../dynlex-ui/testing/driver.dl
+
+document example:
+    editor "Program" containing "import math/helpers.dl" using no UI appearance
+
+set instance to an instance of example
+set window to the address of instance
+set view to a UI view of window sized 800 by 600 using font "regular" with the test UI driver
+set workspace to a UI source workspace in window rooted at "file:///workspace"
+set editor to the UI source editor labeled "Program" in workspace
+set project to editor's document's project
+set path to the string form of "math/helpers.dl"
+require condition ((the new Studio file error for path in project) = "") reporting "A nested project file was rejected."
+set helper to add Studio file path containing (the string form of "answer means: 2") to editor
+require condition (helper's uri = "file:///workspace/math/helpers.dl") reporting "The project did not retain its full file URI."
+visit UI source document helper selecting 0 through 0 in editor in (the address of view)
+set UI text of (editor's node) in window to "answer means: 42"
+synchronize UI source workspace workspace at 1.0 seconds
+set sources to the UI source files of project
+require condition ((the JSON text named path in sources) = "answer means: 42") reporting "Compilation did not see the helper edit."
+free sources
+rename Studio document helper to (the string form of "tools/answers.dl") in editor
+require condition (project's files lacks JSON member named path) reporting "Renaming left an obsolete project path."
+require condition ((the JSON text named "tools/answers.dl" in (project's files)) = helper's source) reporting "Renaming lost the file contents."
+require condition ((the new Studio file error for (the string form of "../outside.dl") in project) != "") reporting "The file picker allowed traversal."
+require condition ((the new Studio file error for (the string form of "tools/answers.dl/child.dl") in project) != "") reporting "A file became a directory."
+require condition ((the new Studio file error for (the string form of "lib/std.dl") in project) != "") reporting "Library source was writable."
+delete Studio document helper in editor in (the address of view)
+require condition ((editor's document = project's entry) and (project's files' length = 0)) reporting "Removing the active file left it in the project."
+set fresh to add Studio file (the string form of "tools/answers.dl") containing (the string form of "") to editor
+require condition ((fresh != helper) and ((fresh's source = "") and (helper's available = false))) reporting "Recreating a file resurrected a deleted buffer."
+set tree to a new Studio file browser
+set tree's rows to a new JSON-RPC array
+set tree's expanded to a new JSON-RPC object
+set tree's libraries to a JSON object containing [JSON text "lib/print.dl" is ""]
+set collapsed to the Studio tree text for project in (the address of tree)
+require condition (collapsed = "▸ tools\nmain.dl\n▸ Libraries") reporting "The tree did not group nested files into collapsible folders."
+expand Studio parent folders of (fresh's filename) with namespace (the string form of "p:") in (the address of tree)
+set JSON member (JSON flag "l:" is true) in (tree's expanded)
+set expanded to the Studio tree text for project in (the address of tree)
+require condition (expanded = "▾ tools\n    answers.dl\nmain.dl\n▾ Libraries\n    ▸ lib") reporting "The project tree did not preserve folder hierarchy or library ownership."
+free tree's rows
+free tree's expanded
+free tree's libraries
+free UI source workspace workspace
+close the address of view
+close window
+print line "Project file operations preserve nested paths, editable sources and entry ownership."

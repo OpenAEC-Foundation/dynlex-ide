@@ -1,0 +1,79 @@
+import ../editor/source_workspace.dl
+import lib/sort.dl
+
+
+class:
+    patterns:
+        Studio file browser
+    members:
+        rows as a pointer to JSON value
+        expanded as a pointer to JSON value
+        libraries as a pointer to JSON value
+        loading libraries as a boolean
+        editor as a pointer to UI source editor
+        document as a pointer to UI source document
+        generation as an integer
+        deletion as a pointer to UI source document
+        storage keys as a string array of 2 items
+        saved revisions as an integer array of 2 items
+        opened as a boolean
+
+to [append Studio tree row] {string:key} [displaying] {string:caption} [to] {a pointer to Studio file browser:browser}:
+    add (a JSON object containing [JSON text "key" is key, JSON text "caption" is caption]) to the JSON array (browser's rows)
+
+to [append Studio tree children in] {string:directory} [from] {a pointer to JSON value:files} [with namespace] {string:space} [indented] {string:indent} [to] {a pointer to Studio file browser:browser}:
+    set folders to an empty list of string
+    set leaves to an empty list of string
+    set seen to a new JSON-RPC object
+    loop index from 0 to (files's length):
+        set path to (the item at index in (files's members))'s name
+        if path has directory at offset 0:
+            set start to directory's length
+            set end to start
+            loop while (end < path's length) and ((the character at end in path) != (47 as a byte)):
+                increment end
+            set name to the substring of path from start spanning (end - start) bytes
+            if end < path's length:
+                if seen lacks JSON member named name:
+                    add JSON-RPC member name containing (a new JSON-RPC null) to seen
+                    append name to folders
+            else:
+                append name to leaves
+    free seen
+    sort folders stably in bytewise order
+    sort leaves stably in bytewise order
+    for each folder in folders:
+        set child to directory + folder + "/"
+        set key to space + child
+        set expanded to browser's expanded has JSON member named key
+        set marker to "▾ " if expanded, else "▸ "
+        append Studio tree row key displaying (indent + marker + folder) to browser
+        if expanded:
+            append Studio tree children in child from files with namespace space indented (indent + "    ") to browser
+    for each name in leaves:
+        append Studio tree row (space + directory + name) displaying (indent + name) to browser
+    free folders
+    free leaves
+
+to [expand Studio parent folders of] {string:path} [with namespace] {string:space} [in] {a pointer to Studio file browser:browser}:
+    loop index from 0 to (path's length):
+        if (the character at index in path) = (47 as a byte):
+            set key to space + (the substring of path from 0 spanning (index + 1) bytes)
+            set JSON member (JSON flag key is true) in (browser's expanded)
+
+to get [the Studio tree text for] {a pointer to UI source project:project} [in] {a pointer to Studio file browser:browser}:
+    free browser's rows
+    set browser's rows to a new JSON-RPC array
+    set files to the UI source files of project
+    append Studio tree children in (the string form of "") from files with namespace (the string form of "p:") indented (the string form of "") to browser
+    free files
+    set expanded to browser's expanded has JSON member named "l:"
+    append Studio tree row (the string form of "l:") displaying ((the string form of "▾ Libraries") if expanded, else (the string form of "▸ Libraries")) to browser
+    if expanded and (browser's libraries != (0 as a pointer to JSON value)):
+        append Studio tree children in (the string form of "") from (browser's libraries) with namespace (the string form of "l:") indented (the string form of "    ") to browser
+    set text to the string form of ""
+    loop index from 0 to (browser's rows' length):
+        if index > 0:
+            set text to text + "\n"
+        set text to text + (the JSON text named "caption" in (the JSON value at index index in (browser's rows)))
+    return text

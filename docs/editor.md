@@ -47,7 +47,7 @@ cleanup releases the projects belonging to its controls.
 
 Import `editor/source_panes.dl` for `source pane "Plan" containing text using
 appearance`. This is an ordinary immutable description containing an editor,
-filename, Back, Main file, Outline, Instances, Fixes and Find buttons. A workspace scopes those controls to their
+filename, Back, Main file, Definition, Outline, Instances, Fixes and Find buttons. A workspace scopes those controls to their
 pane. Bare editors and panes use identical document and interaction code.
 Find/Replace is also library code shared by every pane. Ctrl/Cmd+F opens Find;
 Ctrl/Cmd+H focuses Replace. F3/Shift+F3 or query Enter/Shift+Enter move between
@@ -63,8 +63,9 @@ Read-only sources remain searchable and reject replacements. Search and current
 match marks occupy their own named layers, independently of execution and other
 application annotations.
 
-Enable `editor/source_tools.dl` once per workspace for completion and F12 definition
-navigation; Alt+Left returns through its location history. Visits retain each
+Enable `editor/source_tools.dl` once per workspace for completion and definition
+navigation. Ctrl-click or Cmd-click looks up the symbol under the pointer. F12 and
+the Definition button use the caret. Alt+Left returns through the location history. Visits retain each
 file's independent undo/redo, annotations, Unicode selection and scroll position.
 Imported sources are read-only; the main source's own read-only policy is restored
 on return.

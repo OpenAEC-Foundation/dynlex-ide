@@ -1,0 +1,1 @@
+Project file operations preserve nested paths, editable sources and entry ownership.

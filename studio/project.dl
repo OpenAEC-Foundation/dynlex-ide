@@ -1,0 +1,148 @@
+import configuration.dl
+import file_tree.dl
+import ../editor/source_project_files.dl
+
+to [display Studio files in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    set editor to the website source editor in state
+    set project to editor's document's project
+    set instance to state's view's instance
+    if ((browser's editor != editor) or (browser's document != editor's document)) or (browser's generation != project's file generation):
+        set changed to browser's document != editor's document
+        set browser's editor to editor
+        set browser's document to editor's document
+        set browser's generation to project's file generation
+        set document to editor's document
+        if changed:
+            set browser's deletion to 0 as a pointer to UI source document
+            set the text of "Delete file" in instance to "Delete file"
+            set the text of "File status" in instance to ""
+            set the text of "File path" in instance to (document's filename)
+            if document's writable:
+                expand Studio parent folders of (document's filename) with namespace (the string form of "p:") in browser
+        set the text of "Project files" in instance to (the Studio tree text for project in browser)
+        set the "Rename file" control in instance enabled (document's writable)
+        set the "Delete file" control in instance enabled ((document's writable) and (document != project's entry))
+
+to [visit Studio file] {a pointer to UI source document:target} [in] {a pointer to website state:state}:
+    set editor to the website source editor in state
+    begin UI source interaction in (state's language's tools)
+    if target = editor's document:
+        restore UI source location (editor's current) in editor in (state's view)
+    else:
+        set buffer to the UI source buffer for target in editor
+        visit UI source document target selecting (buffer's anchor) through (buffer's caret) in editor in (state's view)
+    display Studio files in state
+    animate UI view (state's view)
+
+to [fail the Studio library request in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    set browser's loading libraries to false
+    remove JSON member "l:" from (browser's expanded)
+    set browser's generation to -1
+    set the text of "File status" in (state's view's instance) to "An error occurred. Check the log."
+
+to [receive the Studio library catalog] {a pointer to JSON value:response} [in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    if (the JSON number named "status" in response) = 200.0:
+        parse (the JSON text named "text" in response) as JSON and set parsed to it
+        if parsed succeeded:
+            if parsed's value is a JSON object:
+                set browser's libraries to parsed's value
+                set browser's loading libraries to false
+                set browser's generation to -1
+                set the text of "File status" in (state's view's instance) to ""
+                return nothing
+            free parsed's value
+    fail the Studio library request in state
+    request "log" containing (a JSON object containing [JSON text "level" is "error", JSON text "message" is "Could not load the Studio library catalog."]) for purpose 0 indexed 0 in state
+
+to [open Studio tree row] {integer:index} [in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    set key to the JSON text named "key" in (the JSON value at index index in (browser's rows))
+    set path to the substring of key from 2 spanning (key's length - 2) bytes
+    if (path = "") or (path has "/" at offset (path's length - 1)):
+        if browser's expanded has JSON member named key:
+            remove JSON member key from (browser's expanded)
+        else:
+            set JSON member (JSON flag key is true) in (browser's expanded)
+            if (key = "l:") and ((browser's libraries = (0 as a pointer to JSON value)) and (browser's loading libraries = false)):
+                set browser's loading libraries to true
+                set the text of "File status" in (state's view's instance) to "Loading libraries…"
+                request "fetch" containing (a JSON object containing [JSON text "url" is "assets/studio-library.json"]) for purpose 25 indexed 0 in state
+        set browser's generation to -1
+        display Studio files in state
+        if key has "p:" at offset 0:
+            set the text of "File path" in (state's view's instance) to path
+        return nothing
+    set editor to the website source editor in state
+    set project to editor's document's project
+    set root to state's language's client's root
+    if (key has "l:" at offset 0) and (path has "lib/" at offset 0):
+        set root to "file:///"
+    set uri to the project URI for path under root
+    set document to the UI source document at uri in project
+    if document = (0 as a pointer to UI source document):
+        if key has "l:" at offset 0:
+            set leaf to the filename of path using the POSIX path style
+            set document to a UI source document named (leaf's value) at uri containing (the JSON text named path in (browser's libraries)) in project
+        else:
+            set document to a UI source document named path at uri containing (the JSON text named path in (project's files)) in project
+    visit Studio file document in state
+
+to get [read Studio file tree] {a pointer:context} [in] {a pointer to UI view:view}:
+    set state to context as a pointer to website state
+    if (state's route != "/ide/index.html") or (state's studio files' opened = false):
+        return false
+    set tree to the control labeled "Project files" in (view's instance)
+    set position to -1
+    if (view's input kind = 2) and (view's input code = 1):
+        set point to the UI cursor in view
+        set run to the UI text hit at point in view
+        if run != (0 as a pointer to UI text run):
+            if run's source's element = tree:
+                set position to run's start
+    else if (view's key press = 257) and (view's text focus = tree):
+        set position to view's selection's caret
+    if position < 0:
+        return false
+    set text to (the UI value for tree in (view's instance))'s text
+    set row to 0
+    loop index from 0 to position:
+        if (the character at index in text) = (10 as a byte):
+            increment row
+    open Studio tree row row in state
+    return true
+
+to get [change Studio file using] {string:action} [in] {a pointer to website state:state}:
+    if ((action != "action:new-studio-file") and (action != "action:rename-studio-file")) and (action != "action:delete-studio-file"):
+        return false
+    set editor to the website source editor in state
+    set instance to state's view's instance
+    set browser to the address of (state's studio files)
+    synchronize UI source workspace (state's language) at (state's view's seconds) seconds
+    if action = "action:delete-studio-file":
+        if browser's deletion != editor's document:
+            set browser's deletion to editor's document
+            set the text of "Delete file" in instance to "Confirm delete"
+            set the text of "File status" in instance to ("Delete " + editor's document's filename + "?")
+            return true
+        delete Studio document (editor's document) in editor in (state's view)
+    else:
+        set path to (the UI value for (the control labeled "File path" in instance) in instance)'s text
+        set error to the new Studio file error for path in (editor's document's project)
+        if error != "":
+            set the text of "File status" in instance to error
+            return true
+        if action = "action:new-studio-file":
+            set target to add Studio file path containing (the string form of "") to editor
+            visit Studio file target in state
+        else:
+            rename Studio document (editor's document) to path in editor
+            expand Studio parent folders of path with namespace (the string form of "p:") in browser
+    set browser's deletion to 0 as a pointer to UI source document
+    set the text of "File status" in instance to ""
+    set the text of "Delete file" in instance to "Delete file"
+    display Studio files in state
+    animate UI view (state's view)
+    return true

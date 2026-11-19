@@ -44,6 +44,11 @@ appearance IDE preview appearance:
     background is UI ink 9 11 18
     corner radius is 12
 
+appearance IDE details appearance:
+    columns are 2
+    stack below 520
+    gap is 16
+
 appearance IDE file tree appearance:
     use code appearance
     text is palette color "Studio text"

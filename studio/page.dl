@@ -31,9 +31,15 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                             link "Pause preview" to "action:toggle-preview" using IDE link appearance
                             link "Reset time ↺" to "action:reset-preview" using IDE link appearance
                 paragraph "IDE status" containing "Ready." using IDE signal appearance
-                region "Studio project" using stack appearance:
-                    paragraph "Files" using subheading appearance
-                    read only text surface "Project files" containing "" using IDE file tree appearance
+                region "Studio details" using IDE details appearance:
+                    region "Studio project" using stack appearance:
+                        paragraph "Files" using subheading appearance
+                        read only text surface "Project files" containing "" using IDE file tree appearance
+                    region "Studio problems" using stack appearance:
+                        paragraph "Problems" using subheading appearance
+                        paragraph "IDE diagnostics" containing "The language service checks your code as you type." using output appearance
+                        paragraph "IDE analysis" containing "Language service waiting." using IDE signal appearance
+                region "Project file management" using stack appearance:
                     paragraph "File path label" containing "File path" using IDE signal appearance
                     text field "File path" containing "" using IDE link appearance
                     region "File actions" using IDE file actions appearance:
@@ -41,7 +47,4 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                         link "Rename file" to "action:rename-studio-file" using IDE link appearance
                         link "Delete file" to "action:delete-studio-file" using IDE link appearance
                     paragraph "File status" containing "" using IDE signal appearance
-                paragraph "Problems" using subheading appearance
-                paragraph "IDE diagnostics" containing "The language service checks your code as you type." using output appearance
-                paragraph "IDE analysis" containing "Language service waiting." using IDE signal appearance
                 link "Read the language reference →" to "/wiki/index.html" using IDE link appearance

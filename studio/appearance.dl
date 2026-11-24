@@ -18,6 +18,10 @@ appearance IDE code appearance:
     border is palette color "Studio border"
     border width is 1
     height is 560
+    when viewport is below 900:
+        height is 360
+    when viewport is below 700:
+        height is 300
 
 appearance IDE signal appearance:
     use signal appearance
@@ -36,13 +40,18 @@ appearance IDE tabs appearance:
 
 appearance IDE tools appearance:
     columns are 4
-    stack below 700
     gap is 12
+    when viewport is below 700:
+        columns are 2
+        gap is 8
 
 appearance IDE preview appearance:
     height is 320
     background is UI ink 9 11 18
     corner radius is 12
+    when viewport is below 700:
+        height is 0
+        aspect ratio is 16 by 9
 
 appearance IDE details appearance:
     columns are 2
@@ -57,6 +66,8 @@ appearance IDE file tree appearance:
     padding is 8
     font size is 13
     lines do not wrap
+    when viewport is below 700:
+        height is 124
 
 appearance IDE file actions appearance:
     columns are 3

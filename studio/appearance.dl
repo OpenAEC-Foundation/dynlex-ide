@@ -45,6 +45,17 @@ appearance IDE tools appearance:
         columns are 2
         gap is 8
 
+appearance IDE debug tools appearance:
+    columns are 4
+    gap is 8
+    when viewport is below 700:
+        columns are 2
+
+appearance IDE debug data appearance:
+    use IDE file tree appearance
+    height is 96
+    font size is 14
+
 appearance IDE preview appearance:
     height is 320
     background is UI ink 9 11 18

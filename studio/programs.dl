@@ -59,6 +59,8 @@ to [compile website program] {integer:index} [from source] {string:source} [usin
     set program's output to ""
     increment state's invocation
     set program's invocation to state's invocation
+    if (index = 2) and (state's studio debug's active):
+        set state's studio debug's invocation to program's invocation
     set program's phase to 1
     if (index != 2) or ((the website editor uses shaders in state) = false):
         set the text of (description's output) in instance to ""
@@ -76,12 +78,15 @@ to [compile website program] {integer:index} [from source] {string:source} [usin
         set state's shader editor's preview's active to false
         set the text of "Pause preview" in instance to "Pause preview"
     set sources to the UI source files of (source editor's document's project) with main source source
-    request "compiler" containing (a JSON object containing [
+    set payload to a JSON object containing [
         JSON text "operation" is "compile", JSON text "target" is target, JSON text "entry" is name,
         JSON flag "traced" is (description's traced),
         JSON child "stages" is stages,
         JSON child "sources" is sources
-    ]) for purpose 6 indexed index in state
+    ]
+    if (index = 2) and (state's studio debug's active):
+        set JSON member (JSON flag "debugged" is true) in payload
+    request "compiler" containing payload for purpose 6 indexed index in state
     set program's request to state's requests' id
 
 to get the website [diagnostic] text in {a pointer to JSON value:response} after {integer:prefix} lines of {string:entry}:
@@ -126,10 +131,13 @@ to receive website compilation {a pointer to JSON value:response} for {integer:i
         return nothing
     set program's phase to 2
     set the text of (description's status) in instance to "Running…"
-    request "program" containing (a JSON object containing [
+    set payload to a JSON object containing [
         JSON number "artifact" is (the JSON number named "artifact" in response),
         JSON number "invocation" is (program's invocation), JSON number "outputLimit" is 1048576
-    ]) for purpose 7 indexed index in state
+    ]
+    if (index = 2) and (state's studio debug's active):
+        set JSON member (JSON child "breakpoints" is (a copy of JSON-RPC node (state's studio debug's breakpoints))) in payload
+    request "program" containing payload for purpose 7 indexed index in state
     set program's request to state's requests' id
     start website loading budget for index in state
 

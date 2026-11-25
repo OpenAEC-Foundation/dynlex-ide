@@ -58,7 +58,7 @@ to get [read UI source tools] {a pointer:context} [in] {a pointer to UI view:vie
     if (view's key press = 301) and (view's modifiers = 0):
         request a UI source definition in tools
         return true
-    if (view's key press = 298) and (view's modifiers = 0):
+    if (view's key press = 79) and ((view's modifiers = 3) or (view's modifiers = 9)):
         request a UI source outline in tools
         return true
     if (view's key press = 297) and (view's modifiers = 0):

@@ -1,0 +1,13 @@
+import lib/std.dl
+import lib/json_edit.dl
+import ../../../editor/source_debug_values.dl
+
+parse "{\"contents\":\"integer = 9\",\"dynlexVariable\":{\"uri\":\"file:///main.dl\",\"range\":{\"start\":{\"line\":2,\"character\":4}}}}" as JSON and set hovered to it
+parse "[{\"name\":\"counter\",\"type\":\"integer\",\"value\":\"100\",\"uri\":\"file:///main.dl\",\"range\":{\"start\":{\"line\":1,\"character\":4}}},{\"name\":\"counter\",\"type\":\"integer\",\"value\":\"1\",\"uri\":\"file:///main.dl\",\"range\":{\"start\":{\"character\":4,\"line\":2}}}]" as JSON and set variables to it
+require condition ((hovered succeeded) and (variables succeeded)) reporting "Invalid debugger test JSON"
+require condition ((the UI paused hover text of (hovered's value) using (variables's value)) = "counter: integer\nPaused value: 1") reporting "Hover did not use the runtime value of the matching declaration"
+set JSON member (JSON text "uri" is "file:///other.dl") in (the JSON member named "dynlexVariable" in (hovered's value))
+require condition ((the UI paused hover text of (hovered's value) using (variables's value)) = "Not available in the selected stack frame.\n\ninteger = 9") reporting "Hover borrowed a shadowed variable from another source"
+free hovered's value
+free variables's value
+print line "Paused hovers use declaration identity and live values, independent of JSON member order."

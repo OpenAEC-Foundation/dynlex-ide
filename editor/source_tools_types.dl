@@ -25,6 +25,7 @@ class:
         deadline as a floating-point number
         navigation as UI source navigation
         hover as UI source hover
+        runtime values as a pointer to JSON value
         selection key as a string
         selection query as a pointer to UI source query
         selection document as a pointer to UI source document

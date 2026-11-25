@@ -1,0 +1,72 @@
+import debug.dl
+
+to get [the clicked Studio debug row of] {C string:label} [in] {a pointer to UI view:view}:
+    set node to the control labeled label in (view's instance)
+    set position to -1
+    if (view's input kind = 2) and (view's input code = 1):
+        set point to the UI cursor in view
+        set run to the UI text hit at point in view
+        if run != (0 as a pointer to UI text run):
+            if run's source's element = node:
+                set position to run's start
+    else if (view's key press = 257) and (view's text focus = node):
+        set position to view's selection's caret
+    if position < 0:
+        return -1
+    set text to (the UI value for node in (view's instance))'s text
+    set row to 0
+    loop index from 0 to position:
+        if (the character at index in text) = (10 as a byte):
+            increment row
+    return row
+
+to get [read Studio debugger] {a pointer:context} [in] {a pointer to UI view:view}:
+    set state to context as a pointer to website state
+    set session to the address of (state's studio debug)
+    if (state's route != "/ide/index.html") or (session's paused = false):
+        return false
+    set row to the clicked Studio debug row of "Debug stack" in view
+    if row >= 0:
+        if row < session's snapshot's length:
+            clear Studio debug marks in state
+            set session's selected frame to row
+            display the Studio debug frame in state
+            show Studio debug location (the JSON value at index row in (session's snapshot)) in state
+        return true
+    set row to the clicked Studio debug row of "Debug variables" in view
+    if row >= 0:
+        if (row < session's rows' length) and (session's query = 0):
+            set item to the JSON value at index row in (session's rows)
+            set reference to (the JSON number named "reference" in item) as an integer
+            set start to (the JSON number named "start" in item) as an integer
+            if reference > 0:
+                set key to formatted "{reference}"
+                if (start = 0) and (session's expanded has JSON member named key):
+                    remove JSON member key from (session's expanded)
+                else if (start > 0) or ((session's children has JSON member named key) = false):
+                    request Studio debug variables reference starting at start in state
+                else:
+                    set JSON member (JSON flag key is true) in (session's expanded)
+                display the Studio debug frame in state
+        return true
+    return false
+
+to [initialize Studio debugging in] {a pointer to website state:state}:
+    set session to the address of (state's studio debug)
+    set session's snapshot to a new JSON value of kind the JSON array kind
+    set session's rows to a new JSON value of kind the JSON array kind
+    set session's breakpoints to a new JSON value of kind the JSON array kind
+    set session's children to a new JSON value of kind the JSON object kind
+    set session's expanded to a new JSON value of kind the JSON object kind
+    set session's overlay to a UI overlay in (state's view) with context (state as a pointer) handling input ((the function named "read Studio debugger $ in $") as a pointer) painting (0 as a pointer) closing (0 as a pointer)
+    display Studio debug controls in state
+
+to [close Studio debugging in] {a pointer to website state:state}:
+    set session to the address of (state's studio debug)
+    detach UI overlay (session's overlay) in (state's view)
+    set state's language's tools' runtime values to 0 as a pointer to JSON value
+    free session's snapshot
+    free session's rows
+    free session's breakpoints
+    free session's children
+    free session's expanded

@@ -32,7 +32,7 @@ loop while index < the length of labels:
     set workspace's tools' edited to true
     set workspace's tools' deadline to 0.0
     if index = 0:
-        queue UI input of kind 3 key 298 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+        queue UI input of kind 3 key 79 at 0.0 0.0 with modifiers 3 containing "" in (the address of view)
         process UI input in (the address of view)
     else:
         activate (editor's outline) belonging to (editor's outline) in window

@@ -21,6 +21,24 @@ Run always compiles the project entry with all its files. Studio saves editable 
 
 Ctrl-click a symbol on Windows or Linux, or Cmd-click on macOS, to open its definition. On an import path, this opens the file that the compiler resolved. You can also place the caret and use **Definition** or F12. **Back** or Alt+Left returns to the previous location.
 
+## Debug a program
+
+Choose **Debug program** to compile the project for debugging and pause before
+its first statement. Output appears in **Output**. Use **Step over**, **Step into**,
+**Step out**, **Continue debugging**, **Pause debugging**, and **Stop program**.
+While the editor has focus, the shortcuts are F5, F10, F11, Shift+F11 and F9
+(toggle a breakpoint on the caret's line).
+
+While paused, hover over a variable to see its current runtime value. Select a
+call-stack row to inspect that frame and source location. Click an expandable
+variable row to inspect fields, array elements or a pointer's target. The current
+statement is highlighted in yellow; breakpoints are marked in red. Editing source,
+changing the project or leaving Studio stops the current debug session.
+
+Browser debugging requires JavaScript Promise Integration for WebAssembly
+(`WebAssembly.Suspending` and `WebAssembly.promising`). Use a current browser
+with those APIs enabled. Shader programs use the shader preview controls.
+
 ## Embed the editor
 
 The `editor/` library depends on [dynlex-ui](https://github.com/OpenAEC-Foundation/dynlex-ui). Mount the two packages next to each other. Import `editor/control.dl` for a bare code editor, `editor/source_panes.dl` for a pane with navigation and Find/Replace, or `editor/source_tools.dl` for the workspace and language-service controller. See the [editor API](docs/editor.md).

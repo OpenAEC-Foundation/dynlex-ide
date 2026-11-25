@@ -1,0 +1,19 @@
+import lib/json_builders.dl
+import ../../dynlex-ui/ui/overlays.dl
+
+class:
+    patterns:
+        Studio debug session
+    members:
+        active as a boolean
+        paused as a boolean
+        pause as an integer
+        invocation as an integer
+        selected frame as an integer
+        query as an integer
+        snapshot as a pointer to JSON value
+        breakpoints as a pointer to JSON value
+        children as a pointer to JSON value
+        expanded as a pointer to JSON value
+        rows as a pointer to JSON value
+        overlay as a pointer to UI overlay

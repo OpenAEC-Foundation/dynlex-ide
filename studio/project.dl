@@ -117,6 +117,8 @@ to get [read Studio file tree] {a pointer:context} [in] {a pointer to UI view:vi
 to get [change Studio file using] {string:action} [in] {a pointer to website state:state}:
     if ((action != "action:new-studio-file") and (action != "action:rename-studio-file")) and (action != "action:delete-studio-file"):
         return false
+    if state's studio debug's active:
+        stop website program 2 in state
     set editor to the website source editor in state
     set instance to state's view's instance
     set browser to the address of (state's studio files)

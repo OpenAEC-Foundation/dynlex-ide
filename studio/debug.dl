@@ -1,0 +1,152 @@
+import programs.dl
+import debug_model.dl
+
+to [send Studio debug command] {string:command} [in] {a pointer to website state:state}:
+    set session to the address of (state's studio debug)
+    request "debugger" containing (a JSON object containing [
+        JSON text "command" is command, JSON number "invocation" is (session's invocation), JSON number "pause" is (session's pause)
+    ]) for purpose 26 indexed (session's invocation) in state
+    if command != "pause":
+        if session's query != 0:
+            ignore cancel website request (session's query) in state
+            set session's query to 0
+        set session's paused to false
+        set state's language's tools' runtime values to 0 as a pointer to JSON value
+        dismiss UI source hover (the address of (state's language's tools' hover)) in (state's view)
+        set the text of "IDE status" in (state's view's instance) to "Running…"
+    else:
+        set the text of "IDE status" in (state's view's instance) to "Pausing…"
+    display Studio debug controls in state
+
+to [debug the Studio program in] {a pointer to website state:state}:
+    if prepare website program 2 in state:
+        set state's studio debug's active to true
+        set editor to the source editor of website program 2 in state
+        set source to the UI main source of editor in (state's language) at (state's view's seconds) seconds
+        compile website program 2 from source source using editor in state
+        display Studio debug controls in state
+
+to [send Studio breakpoints in] {a pointer to website state:state}:
+    set session to the address of (state's studio debug)
+    if session's active and ((state's programs + 2)'s phase = 2):
+        request "debugger" containing (a JSON object containing [
+            JSON text "command" is "breakpoints", JSON number "invocation" is (session's invocation),
+            JSON child "breakpoints" is (a copy of JSON-RPC node (session's breakpoints))
+        ]) for purpose 26 indexed (session's invocation) in state
+    display Studio breakpoints in state
+
+to [toggle the Studio breakpoint in] {a pointer to website state:state}:
+    set editor to the website source editor in state
+    remember the UI source location of editor in (state's view)
+    set position to the UI analysis position for source byte (editor's current's caret) in (editor's document)
+    set point to a JSON object containing [JSON text "uri" is (editor's document's uri), JSON number "line" is (the JSON number named "line" in position)]
+    free position
+    set key to the Studio debug breakpoint key of point
+    set points to state's studio debug's breakpoints
+    set next to a new JSON value of kind the JSON array kind
+    set found to false
+    set index to 0
+    loop while index < points's length:
+        set previous to the JSON value at index index in points
+        if (the Studio debug breakpoint key of previous) = key:
+            set found to true
+        else:
+            add (a copy of JSON-RPC node previous) to the JSON array next
+        increment index
+    if found:
+        free point
+    else:
+        add point to the JSON array next
+    free points
+    set state's studio debug's breakpoints to next
+    send Studio breakpoints in state
+
+to get [follow Studio debug action] {string:action} [in] {a pointer to website state:state}:
+    if action = "action:clear-breakpoints-ide":
+        free state's studio debug's breakpoints
+        set state's studio debug's breakpoints to a new JSON value of kind the JSON array kind
+        send Studio breakpoints in state
+        return true
+    if action = "action:debug-ide":
+        debug the Studio program in state
+        return true
+    if action = "action:breakpoint-ide":
+        toggle the Studio breakpoint in state
+        return true
+    for each command in ["continue", "pause", "over", "into", "out"]:
+        if action = "action:debug-" + command:
+            send Studio debug command (the string form of command) in state
+            return true
+    return false
+
+to [show Studio debug location] {a pointer to JSON value:frame} [in] {a pointer to website state:state}:
+    set editor to the UI source editor labeled "IDE source" in (state's language)
+    set project to editor's document's project
+    set uri to the JSON text named "uri" in frame
+    set document to the UI source document at uri in project
+    if document = (0 as a pointer to UI source document):
+        set index to 0
+        loop while index < project's files' length:
+            set file to project's files' members + index
+            if (the project URI for (file's name) under (state's language's client's root)) = uri:
+                set document to a UI source document named (file's name) at uri containing (file's value's text) in project
+            increment index
+    require condition (document != (0 as a pointer to UI source document)) reporting "The paused program refers to a source outside its project"
+    set span to the UI source range of frame in document
+    require condition (span's visible) reporting "The paused program refers to a hidden source range"
+    show UI source document document in editor in (state's view)
+    set editor's current's anchor and editor's current's caret to span's start
+    restore UI source location (editor's current) in editor in (state's view)
+    set state's view's reveal caret to true
+    set value to the UI text state for document in editor in (state's view's instance)
+    mark UI text (document's source) in layer "debug execution" at priority 20 in value
+    add UI text mark (UI ink 210 170 70) from (span's start) to (span's end) with opacity 110 in layer "debug execution" in value
+    display Studio files in state
+    animate UI view (state's view)
+
+to [receive Studio debug notification] {a pointer to JSON value:message} [in] {a pointer to website state:state}:
+    set session to the address of (state's studio debug)
+    set invocation to (the JSON number named "invocation" in message) as an integer
+    if (session's active = false) or (session's invocation != invocation):
+        return nothing
+    clear the Studio pause in state
+    if (the JSON text named "type" in message) = "program-paused":
+        set session's paused to true
+        set session's pause to (the JSON number named "pause" in message) as an integer
+        set session's selected frame to 0
+        free session's snapshot
+        set session's snapshot to a copy of JSON-RPC node (the JSON member named "frames" in message)
+        display the Studio debug frame in state
+        show Studio debug location (the JSON value at index 0 in (session's snapshot)) in state
+        set reason to the JSON text named "reason" in message
+        set the text of "IDE status" in (state's view's instance) to ("Paused at breakpoint." if reason = "breakpoint", else "Paused. Hover a variable or step through the program.")
+    else:
+        set the text of "IDE status" in (state's view's instance) to "Running…"
+    display Studio debug controls in state
+
+to [request Studio debug variables] {integer:reference} [starting at] {integer:start} [in] {a pointer to website state:state}:
+    set session to the address of (state's studio debug)
+    require condition ((session's paused) and (session's query = 0)) reporting "Variable inspection requires one paused request"
+    request "debugger" containing (a JSON object containing [
+        JSON text "command" is "variables", JSON number "invocation" is (session's invocation),
+        JSON number "pause" is (session's pause), JSON number "reference" is reference,
+        JSON number "start" is start, JSON number "count" is 100
+    ]) for purpose 27 indexed (session's pause) in state
+    set session's query to state's requests' id
+
+to [receive Studio debug variables] {a pointer to JSON value:response} [for pause] {integer:pause} [in] {a pointer to website state:state}:
+    set session to the address of (state's studio debug)
+    require condition ((session's paused) and (session's pause = pause)) reporting "Variable inspection outlived its pause"
+    set session's query to 0
+    set reference to (the JSON number named "reference" in response) as an integer
+    set key to formatted "{reference}"
+    set incoming to the JSON member named "variables" in response
+    if (session's children has JSON member named key) = false:
+        set JSON member (JSON child key is (a new JSON value of kind the JSON array kind)) in (session's children)
+    set children to the JSON member named key in (session's children)
+    set index to 0
+    loop while index < incoming's length:
+        add (a copy of JSON-RPC node (the JSON value at index index in incoming)) to the JSON array children
+        increment index
+    set JSON member (JSON flag key is true) in (session's expanded)
+    display the Studio debug frame in state

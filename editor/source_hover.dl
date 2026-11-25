@@ -4,6 +4,7 @@ import ../../dynlex-ui/ui/view_lookup.dl
 import source_buffers.dl
 import source_hover_types.dl
 import source_hover_content.dl
+import source_debug_values.dl
 
 to get [the UI source editor under] {a pointer to UI text run:run} [in] {a pointer to UI source workspace:workspace}:
     set editor to workspace's editors
@@ -100,6 +101,8 @@ to [update UI source hover in] {a pointer to UI source tools:tools}:
         set hover's phase to 2
     if (hover's phase = 2) and (hover's query's ready):
         set text to the UI source hover text of (hover's query's result)
+        if tools's runtime values != (0 as a pointer to JSON value):
+            set text to the UI paused hover text of (hover's query's result) using (tools's runtime values)
         set hover's phase to 4
         if text's length > 0:
             set UI text popover (the address of (hover's popover)) to text in view

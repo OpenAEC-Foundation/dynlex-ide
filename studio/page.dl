@@ -11,6 +11,15 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
             link "Stop program ■" to "action:stop-ide" using IDE link appearance
             link "Save source ↓" to "action:save-source" using IDE link appearance
             link "Switch to light" to "action:toggle-ide-theme" using IDE link appearance
+        region "Debug controls" using IDE debug tools appearance:
+            link "Debug program" to "action:debug-ide" using IDE link appearance
+            link "Continue debugging" to "action:debug-continue" using IDE link appearance
+            link "Pause debugging" to "action:debug-pause" using IDE link appearance
+            link "Step over" to "action:debug-over" using IDE link appearance
+            link "Step into" to "action:debug-into" using IDE link appearance
+            link "Step out" to "action:debug-out" using IDE link appearance
+            link "Toggle breakpoint" to "action:breakpoint-ide" using IDE link appearance
+            link "Clear breakpoints" to "action:clear-breakpoints-ide" using IDE link appearance
         view group "Studio appearance notice" using no UI appearance:
             paragraph "Studio appearance error" containing "An error occurred. Check the log." using IDE signal appearance
         region "Studio workspace" using columns appearance:
@@ -24,6 +33,13 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                     region "Program result" using stack appearance:
                         paragraph "Output" using subheading appearance
                         paragraph "IDE output" containing "Run the program to see its output." using output appearance
+                        paragraph "Debugger shortcuts" containing "F5 debug / continue · F9 breakpoint · F10 step over · F11 step into · Shift+F11 step out" using IDE signal appearance
+                        paragraph "Call stack" using subheading appearance
+                        read only text surface "Debug stack" containing "" using IDE debug data appearance
+                        paragraph "Variables" using subheading appearance
+                        read only text surface "Debug variables" containing "" using IDE debug data appearance
+                        paragraph "Breakpoints" using subheading appearance
+                        read only text surface "Debug breakpoints" containing "" using IDE debug data appearance
                     region "Shader result" using stack appearance:
                         paragraph "Last successful build" using subheading appearance
                         surface "IDE shader preview" using IDE preview appearance

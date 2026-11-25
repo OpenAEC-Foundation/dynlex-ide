@@ -89,7 +89,7 @@ The default call colors are generated from DynLex's canonical
 --dynlex <compiler-checkout>` after changing that palette. SDK export and shared
 tests check that the generated declarations match it.
 
-F9 opens an outline of authored sections, including nested declarations. Choosing
+Ctrl+Shift+O (Cmd+Shift+O on macOS) opens an outline of authored sections, including nested declarations. Choosing
 a section visits its selection range through the same Unicode and protected
 context mapping as definition navigation. F8 lists inferred instances at the
 caret and initially selects the compiler's current instance. Choosing another

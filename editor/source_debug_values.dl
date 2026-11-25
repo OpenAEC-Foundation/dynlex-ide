@@ -1,0 +1,22 @@
+import source_hover_content.dl
+
+# Runtime values are matched by declaration identity, so shadowed names and
+# recursive call frames never borrow a value from another scope.
+to get [the UI paused hover text of] {a pointer to JSON value:result} [using] {a pointer to JSON value:variables}:
+    set text to the UI source hover text of result
+    if (result is JSON null) or ((result has JSON member named "dynlexVariable") = false):
+        return text
+    set symbol to the JSON member named "dynlexVariable" in result
+    set expected to the JSON member named "start" in (the JSON member named "range" in symbol)
+    set index to 0
+    loop while index < variables's length:
+        set variable to the JSON value at index index in variables
+        set location to the JSON member named "start" in (the JSON member named "range" in variable)
+        set same to ((the JSON number named "line" in location) = (the JSON number named "line" in expected)) and ((the JSON number named "character" in location) = (the JSON number named "character" in expected))
+        if ((the JSON text named "uri" in variable) = (the JSON text named "uri" in symbol)) and same:
+            set name to the JSON text named "name" in variable
+            set kind to the JSON text named "type" in variable
+            set value to the JSON text named "value" in variable
+            return formatted "{name}: {kind}\nPaused value: {value}"
+        increment index
+    return "Not available in the selected stack frame.\n\n" + text

@@ -1,0 +1,1 @@
+Paused hovers use declaration identity and live values, independent of JSON member order.

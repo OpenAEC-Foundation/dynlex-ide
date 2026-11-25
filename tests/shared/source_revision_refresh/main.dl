@@ -1,0 +1,74 @@
+import ../../../editor/source_language.dl
+
+set main to a UI source document named "main.dl" at "file:///workspace/main.dl" prefixed by "" containing "answer means: 42" using UI CPU analysis
+set project to main's project
+set client to a UI language client rooted at "file:///workspace"
+set client's project to project
+set client's model to the UI language model for main in client
+set client's project context to project's context
+set client's profiles to the compact JSON form of (project's profiles)
+set work to the UI language opening in client
+free work's payload
+
+# Invalidate while didOpen is in flight, keeping the source bytes and context.
+invalidate UI source project project
+set response to a new JSON-RPC array
+set work to the UI language reply response at step 4 in client
+free response
+free work's payload
+set response to a JSON array containing [a JSON object containing [JSON number "id" is 6, JSON child "result" is (a JSON object containing [JSON child "data" is (a new JSON-RPC array)])]]
+set work to the UI language reply response at step 6 in client
+free response
+require condition (main needs UI source analysis) reporting "A stale token reply completed a newer project generation"
+
+loop attempt from 0 to 2:
+    set work to the next UI language work for client analyzing main at 1.0 seconds
+    require condition (work's step = 5) reporting "Project invalidation did not request a matching diagnostic snapshot"
+    free work's payload
+    set response to a new JSON-RPC array
+    set work to the UI language reply response at step 5 in client
+    free response
+    free work's payload
+    set response to a JSON array containing [a JSON object containing [JSON number "id" is 6, JSON child "result" is (a JSON object containing [JSON child "data" is (a new JSON-RPC array)])]]
+    set work to the UI language reply response at step 6 in client
+    free response
+    require condition ((main needs UI source analysis) = false) reporting "The replacement diagnostic snapshot did not complete"
+    require condition (project's report revision = project's revision) reporting "Diagnostics belong to an old project generation"
+    if attempt = 0:
+        invalidate UI source project project
+
+# Secondary documents share the main document's completed diagnostic snapshot.
+set helper to a UI source document named "helper.dl" at "file:///workspace/helper.dl" containing "helper means: 21" in project
+set client's model to the UI language model for helper in client
+set work to the UI language opening in client
+free work's payload
+set response to a new JSON-RPC array
+set work to the UI language reply response at step 4 in client
+free response
+free work's payload
+set response to a JSON array containing [a JSON object containing [JSON number "id" is 6, JSON child "result" is (a JSON object containing [JSON child "data" is (a new JSON-RPC array)])]]
+set work to the UI language reply response at step 6 in client
+free response
+invalidate UI source project project
+set work to the next UI language work for client analyzing helper at 1.0 seconds
+require condition ((work's step = 5) and (client's document = main)) reporting "A secondary source bypassed the main diagnostic refresh"
+free work's payload
+set response to a new JSON-RPC array
+set work to the UI language reply response at step 5 in client
+free response
+free work's payload
+set response to a JSON array containing [a JSON object containing [JSON number "id" is 6, JSON child "result" is (a JSON object containing [JSON child "data" is (a new JSON-RPC array)])]]
+set work to the UI language reply response at step 6 in client
+free response
+set work to the next UI language work for client analyzing helper at 1.0 seconds
+require condition ((work's step = 6) and (client's document = helper)) reporting "Unchanged secondary source text was resent instead of refreshing tokens"
+require condition (project's reports complete) reporting "A secondary source reset the main diagnostic snapshot"
+free work's payload
+set response to a JSON array containing [a JSON object containing [JSON number "id" is 6, JSON child "result" is (a JSON object containing [JSON child "data" is (a new JSON-RPC array)])]]
+set work to the UI language reply response at step 6 in client
+free response
+require condition ((helper needs UI source analysis) = false) reporting "A secondary source did not finish its new project generation"
+
+free UI language client client
+free UI source project project
+print line "Project invalidation refreshes diagnostics and rejects stale token replies without changing source text."

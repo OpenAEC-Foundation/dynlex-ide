@@ -57,7 +57,7 @@ to get [valid Studio project snapshot] {a pointer to JSON value:snapshot}:
         set member to the item at index in (files's members)
         if (member's value's kind != the JSON text kind) or ((a Studio source path error for (member's name)) != ""):
             return false
-        if (((member's name has "lib/" at offset 0) or (member's name has "packages/" at offset 0)) or (member's name has "site/language/" at offset 0)) or (member's name has ".dynlex/" at offset 0):
+        if ((member's name has "lib/" at offset 0) or (member's name has "packages/" at offset 0)) or (member's name has "site/language/" at offset 0):
             return false
         loop offset from 0 to (member's name's length):
             if (the character at offset in (member's name)) = (47 as a byte):

@@ -42,7 +42,9 @@ to get [the UI language opening in] {a pointer to UI language client:client}:
     return UI language message "textDocument/didOpen" with parameters requesting false at step 4 in client
 
 to get [the UI language token request in] {a pointer to UI language client:client}:
-    set client's project revision to client's document's project's revision
+    set project to client's document's project
+    if (client's document != project's entry) and ((project's reports complete) and (project's report revision = project's revision)):
+        set client's project revision to project's revision
     set client's token epoch to client's document's token epoch
     set parameters to a JSON object containing [JSON child "textDocument" is (an LSP text document identifier for (client's uri))]
     return UI language message "textDocument/semanticTokens/full" with parameters requesting true at step 6 in client
@@ -53,7 +55,8 @@ to get [the UI language source change in] {a pointer to UI language client:clien
     set client's revision to document's revision
     set client's project revision to document's project's revision
     increment client's version
-    begin UI source reports for (document's project)
+    if document = document's project's entry:
+        begin UI source reports for (document's project)
     set parameters to the LSP document change parameters for (client's uri) at (client's version) containing (a full LSP content change containing (client's snapshot))
     return UI language message "textDocument/didChange" with parameters requesting false at step 5 in client
 
@@ -93,7 +96,7 @@ to get [the next UI language work for] {a pointer to UI language client:client} 
     set client's model to root
     if root's opened = false:
         return the UI language opening in client
-    if (root has current UI model text) = false:
+    if ((root has current UI model text) = false) or (root's project revision != main's project's revision):
         return the UI language source change in client
     if main needs UI source analysis:
         return the UI language token request in client

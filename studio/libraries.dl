@@ -65,6 +65,10 @@ to [request Studio library operation] {string:operation} [with] {a pointer to JS
     set browser's library target to project
     set JSON member (JSON text "operation" is operation) in fields
     set JSON member (JSON child "project" is (a copy of JSON node (project's dependencies))) in fields
+    set paths to a JSON array containing [(a new JSON-RPC text for (project's entry's filename))]
+    loop index from 0 to (project's files' length):
+        add (a new JSON-RPC text for ((the item at index in (project's files' members))'s name)) to the JSON array paths
+    set JSON member (JSON child "paths" is paths) in fields
     request "libraries" containing fields for purpose 26 indexed 0 in state
     set browser's library request to state's requests' id
     set Studio library actions enabled false in state
@@ -146,7 +150,7 @@ to [apply Studio library configuration] {a pointer to JSON value:configuration} 
     set prefix to state's language's client's root + "/.dynlex/packages/"
     set document to project's documents
     loop while document != (0 as a pointer to UI source document):
-        if document's uri has prefix at offset 0:
+        if (document's writable = false) and (document's uri has prefix at offset 0):
             set location to the path from (document's uri) interpreted as a file URI using the POSIX path style
             require condition (location's success) reporting "A Studio library document has an invalid URI"
             set path to the substring of (location's value) from (root's length) spanning (location's value's length - root's length) bytes

@@ -98,6 +98,7 @@ to [show Studio debug location] {a pointer to JSON value:frame} [in] {a pointer 
     set editor's current's anchor and editor's current's caret to span's start
     restore UI source location (editor's current) in editor in (state's view)
     set state's view's reveal caret to true
+    reveal focused UI content in (state's view)
     set value to the UI text state for document in editor in (state's view's instance)
     mark UI text (document's source) in layer "debug execution" at priority 20 in value
     add UI text mark (UI ink 210 170 70) from (span's start) to (span's end) with opacity 110 in layer "debug execution" in value

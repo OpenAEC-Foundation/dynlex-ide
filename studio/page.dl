@@ -29,6 +29,7 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                 tab "Shader":
                     source pane "Shader source" containing the default website shader source using IDE code appearance
             region "Studio result" using IDE card appearance:
+                paragraph "IDE status" containing "Ready." using IDE signal appearance
                 view group "IDE result" using stack appearance:
                     region "Program result" using stack appearance:
                         paragraph "Output" using subheading appearance
@@ -46,7 +47,6 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                         region "Preview playback" using cards appearance:
                             link "Pause preview" to "action:toggle-preview" using IDE link appearance
                             link "Reset time ↺" to "action:reset-preview" using IDE link appearance
-                paragraph "IDE status" containing "Ready." using IDE signal appearance
                 region "Studio details" using IDE details appearance:
                     region "Studio project" using stack appearance:
                         paragraph "Files" using subheading appearance

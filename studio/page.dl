@@ -51,20 +51,21 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                     paragraph "Libraries" using subheading appearance
                     link "＋ Add Library" to "action:add-library" using IDE link appearance
                     view group "Library picker" using no UI appearance:
-                        paragraph "Search libraries label" containing "Search libraries" using IDE signal appearance
-                        text field "Search libraries" containing "" using IDE link appearance
-                        paragraph "Available libraries label" containing "Available libraries" using IDE signal appearance
-                        choice field "Available library" choosing "":
-                        paragraph "Library description" containing "Choose Add Library to browse libraries." using IDE signal appearance
-                        paragraph "Library import name label" containing "Import name" using IDE signal appearance
-                        text field "Import library as" containing "ui" using IDE link appearance
-                        paragraph "Library import name help" containing "Use lowercase letters, digits, and hyphens." using IDE signal appearance
-                        link "Add selected library" to "action:install-library" using IDE link appearance
-                        paragraph "Library source URL label" containing "Repository or SDK archive URL" using IDE signal appearance
-                        text field "Library source URL" containing "" using IDE link appearance
-                        link "Add from URL" to "action:library-url" using IDE link appearance
-                        link "Browse local folder…" to "action:library-folder" using IDE link appearance
-                        link "Close library picker" to "action:close-library-picker" using IDE link appearance
+                        region "Library picker fields" using stack appearance:
+                            paragraph "Search libraries label" containing "Search libraries" using IDE signal appearance
+                            text field "Search libraries" containing "" using IDE link appearance
+                            paragraph "Available libraries label" containing "Available libraries" using IDE signal appearance
+                            choice field "Available library" choosing "":
+                            paragraph "Library description" containing "Choose Add Library to browse libraries." using IDE signal appearance
+                            paragraph "Library import name label" containing "Import name" using IDE signal appearance
+                            text field "Import library as" containing "ui" using IDE link appearance
+                            paragraph "Library import name help" containing "Use lowercase letters, digits, and hyphens." using IDE signal appearance
+                            link "Add selected library" to "action:install-library" using IDE link appearance
+                            paragraph "Library source URL label" containing "Repository or SDK archive URL" using IDE signal appearance
+                            text field "Library source URL" containing "" using IDE link appearance
+                            link "Add from URL" to "action:library-url" using IDE link appearance
+                            link "Browse local folder…" to "action:library-folder" using IDE link appearance
+                            link "Close library picker" to "action:close-library-picker" using IDE link appearance
                     paragraph "Installed libraries label" containing "Installed libraries" using IDE signal appearance
                     choice field "Installed library" choosing "":
                     region "Library actions" using IDE file actions appearance:

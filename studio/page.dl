@@ -47,4 +47,24 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                         link "Rename file" to "action:rename-studio-file" using IDE link appearance
                         link "Delete file" to "action:delete-studio-file" using IDE link appearance
                     paragraph "File status" containing "" using IDE signal appearance
+                region "Project libraries" using stack appearance:
+                    paragraph "Libraries" using subheading appearance
+                    link "＋ Add Library" to "action:add-library" using IDE link appearance
+                    view group "Library picker" using no UI appearance:
+                        text field "Search libraries" containing "" using IDE link appearance
+                        choice field "Available library" choosing "":
+                        paragraph "Library description" containing "Choose Add Library to browse libraries." using IDE signal appearance
+                        text field "Import library as" containing "ui" using IDE link appearance
+                        paragraph "Library import name help" containing "Use lowercase letters, digits, and hyphens." using IDE signal appearance
+                        link "Add selected library" to "action:install-library" using IDE link appearance
+                        text field "Library source URL" containing "" using IDE link appearance
+                        link "Add from URL" to "action:library-url" using IDE link appearance
+                        link "Browse local folder…" to "action:library-folder" using IDE link appearance
+                        link "Close library picker" to "action:close-library-picker" using IDE link appearance
+                    choice field "Installed library" choosing "":
+                    region "Library actions" using IDE file actions appearance:
+                        link "Update library" to "action:update-library" using IDE link appearance
+                        link "Remove library" to "action:remove-library" using IDE link appearance
+                        link "Library documentation" to "action:library-documentation" using IDE link appearance
+                    paragraph "Library status" containing "" using IDE signal appearance
                 link "Read the language reference →" to "/wiki/index.html" using IDE link appearance

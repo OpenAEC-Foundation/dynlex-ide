@@ -10,6 +10,7 @@ class:
     members:
         workspace as a pointer
         view as a pointer to UI view
+        command handler as a pointer
         overlay as a pointer to UI overlay
         node as UI reference
         document as a pointer to UI source document

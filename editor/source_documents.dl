@@ -14,6 +14,8 @@ class:
         documents as a pointer to UI source document
         profiles as a pointer to JSON value
         files as a pointer to JSON value
+        libraries as a pointer to JSON value
+        dependencies as a pointer to JSON value
         context as a string
         revision as an integer
         file generation as an integer
@@ -85,22 +87,34 @@ to [refresh the context of UI source project] {a pointer to UI source project:pr
     set context to a JSON object containing [
         JSON text "entry" is (entry's context),
         JSON child "profiles" is (a copy of JSON-RPC node (project's profiles)),
-        JSON child "files" is (a copy of JSON-RPC node (project's files))
+        JSON child "files" is (the UI source imports of project)
     ]
     set project's context to the compact JSON form of context
     free context
 
 # Snapshots own their inputs. Alternate applied source can be compiled without
 # replacing a visible draft or changing the language service's project identity.
+to get [the UI source imports of] {a pointer to UI source project:project}:
+    set files to a copy of JSON-RPC node (project's files)
+    loop index from 0 to (project's libraries' length):
+        set member to the item at index in (project's libraries' members)
+        set JSON member (JSON text (member's name) is (member's value's text)) in files
+    return files
+
 to get [the UI source files of] {a pointer to UI source project:project} [with main source] {string:source}:
     set document to project's entry
-    set files to a copy of JSON-RPC node (project's files)
+    set files to the UI source imports of project
     require condition ((files has JSON member named (document's filename)) = false) reporting "The main editor source is duplicated in its project files"
     add JSON-RPC member (document's filename) containing (a new JSON-RPC text for (document's prefix + source)) to files
     return files
 
 to get [the UI source files of] {a pointer to UI source project:project}:
     return the UI source files of project with main source (project's entry's source)
+
+to get [the UI application files of] {a pointer to UI source project:project}:
+    set files to a copy of JSON node (project's files)
+    set JSON member (JSON text (project's entry's filename) is (project's entry's source)) in files
+    return files
 
 to get [the UI source document at] {string:uri} [in] {a pointer to UI source project:project}:
     set document to project's documents
@@ -174,10 +188,18 @@ local function [allocate UI source document named] {string:filename} [at] {strin
             apply the UI source report to document
         return document
 
+to get [an empty UI library configuration]:
+    return a JSON object containing [
+        JSON child "manifest" is (a JSON object containing [JSON number "schema" is 1.0, JSON child "dependencies" is (a new JSON-RPC object)]),
+        JSON child "lock" is (a JSON object containing [JSON number "schema" is 1.0, JSON child "dependencies" is (a new JSON-RPC object), JSON child "requests" is (a new JSON-RPC object), JSON child "packages" is (a new JSON-RPC object)])
+    ]
+
 to get [a UI source document named] {string:filename} [at] {string:uri} [prefixed by] {string:prefix} [containing] {string:source} [using] {a pointer to JSON value:profiles}:
     set project to storage for one slot initialized with (a new UI source project)
     set project's profiles to profiles
     set project's files to a new JSON-RPC object
+    set project's libraries to a new JSON-RPC object
+    set project's dependencies to an empty UI library configuration
     set project's reports to a new JSON-RPC object
     set project's report revision to -1
     set document to allocate UI source document named filename at uri prefixed by prefix containing source in project
@@ -276,6 +298,8 @@ to [free UI source project] {a pointer to UI source project:project}:
         set document to next
     free owner's profiles
     free owner's files
+    free owner's libraries
+    free owner's dependencies
     free owner's reports
     destroy the value at owner
     deallocate owner

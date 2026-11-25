@@ -12,12 +12,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def export(output):
-    paths = [ROOT / 'LICENSE.md', *sorted((ROOT / 'editor').glob('*.dl')),
+    metadata = json.loads((ROOT / 'dynlex-package.json').read_text())
+    paths = [ROOT / 'LICENSE.md', ROOT / 'dynlex-package.json', *sorted((ROOT / 'editor').glob('*.dl')),
              *sorted((ROOT / 'studio').glob('*.dl'))]
     files = {path.relative_to(ROOT).as_posix(): path.read_bytes() for path in paths}
     digests = {name: hashlib.sha256(data).hexdigest() for name, data in files.items()}
     manifest = {
         'schema': 1, 'package': 'dynlex-ide', 'files': digests,
+        **{key: metadata[key] for key in ['exports', 'dependencies', 'description', 'documentation', 'title', 'publisher', 'importName']},
         'sourceRevision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         'contentHash': hashlib.sha256(json.dumps(digests, sort_keys=True, separators=(',', ':')).encode()).hexdigest(),
     }

@@ -19,6 +19,13 @@ Studio’s **Files** panel shows the current program or shader project. Enter a 
 
 Run always compiles the project entry with all its files. Studio saves editable projects in this browser and keeps shared examples in separate drafts. Use **Save source** to download the current project file.
 
+Choose **＋ Add Library** to search the library catalog, select a library and add
+it under an import name such as `ui`. The picker also accepts a GitHub repository,
+SDK archive URL or local folder. Installed libraries have Update, Remove and
+Documentation actions; their source is read-only under Libraries. Project drafts
+retain exact dependency locks, and source packages and assets are cached in
+IndexedDB. Use Ctrl+. on a missing library import to open the same picker.
+
 Ctrl-click a symbol on Windows or Linux, or Cmd-click on macOS, to open its definition. On an import path, this opens the file that the compiler resolved. You can also place the caret and use **Definition** or F12. **Back** or Alt+Left returns to the previous location.
 
 ## Embed the editor

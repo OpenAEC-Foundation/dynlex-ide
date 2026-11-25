@@ -1,0 +1,19 @@
+import ../../../editor/source_workspace.dl
+
+set main to a UI source document named "main.dl" at "file:///workspace/main.dl" prefixed by "" containing "import ui/colors.dl" using UI CPU analysis
+set project to main's project
+set original to project's revision
+set JSON member (JSON text "dynlex.json" is "{\"schema\":1,\"dependencies\":{}}") in (project's libraries)
+set JSON member (JSON text ".dynlex/packages/example/ui/colors.dl" is "color means: 42") in (project's libraries)
+refresh the context of UI source project project
+invalidate UI source project project
+set snapshot to the UI source files of project
+require condition (snapshot has JSON member named "dynlex.json") reporting "Dependency metadata did not reach the compiler snapshot"
+require condition (snapshot has JSON member named ".dynlex/packages/example/ui/colors.dl") reporting "Installed library sources did not reach the compiler snapshot"
+require condition ((project's files has JSON member named "dynlex.json") = false) reporting "Dependency metadata became an editable application file"
+require condition (project's revision > original) reporting "Installing a library did not invalidate analysis"
+set JSON member (JSON text ".dynlex/packages/example/ui/colors.dl" is "changed") in snapshot
+require condition ((the JSON text named ".dynlex/packages/example/ui/colors.dl" in (project's libraries)) = "color means: 42") reporting "A compiler snapshot changed installed sources"
+free snapshot
+free UI source project project
+print line "Installed libraries share compiler and language snapshots while remaining separate from application files."

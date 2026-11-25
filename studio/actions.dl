@@ -1,6 +1,9 @@
 import programs.dl
+import libraries.dl
 
 to get follow Studio action {string:destination} in {a pointer to website state:state}:
+    if follow Studio library action destination in state:
+        return true
     if change Studio file using destination in state:
         save changed Studio projects in state
         return true
@@ -35,6 +38,7 @@ to select website editor mode {integer:mode} in {a pointer to website state:stat
     set the text of "IDE status" in instance to "Ready."
     set the text of "IDE diagnostics" in instance to "Checking source…"
     set the text of "IDE analysis" in instance to "Analyzing…"
+    present installed Studio libraries in state
 
 to notice website editor mode {a pointer to UI instance:instance}:
     set state to the website state in instance
@@ -47,6 +51,8 @@ to notice website editor mode {a pointer to UI instance:instance}:
             toggle the website shader preview in state
 
 to bind Studio controls in {a pointer to UI instance:instance}:
+    bind (the control labeled "Search libraries" in instance) in instance to (the function named "notice Studio library search $") for event 0
+    bind (the control labeled "Available library" in instance) in instance to (the function named "notice Studio library selection $") for event 0
     bind (the control labeled "IDE source" in instance) in instance to (the function named "notice website source edit $") for event 0
     bind (the control labeled "Shader source" in instance) in instance to (the function named "notice website source edit $") for event 0
     bind (the control labeled "IDE modes" in instance) in instance to (the function named "notice website editor mode $") for event 0

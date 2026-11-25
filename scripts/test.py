@@ -31,7 +31,7 @@ with tempfile.TemporaryDirectory(dir=ROOT / 'build') as temporary:
             continue
         for optimization in ['-O0', '-O2']:
             binary = project / 'fixture.out'
-            subprocess.run([core / 'build/dynlex', fixture, optimization, '-o', binary], check=True)
+            subprocess.run([core / 'build/dynlex', fixture, '--no-incremental', optimization, '-o', binary], check=True)
             output = subprocess.check_output([binary], text=True)
             if output != fixture.with_name('expected.txt').read_text():
                 raise AssertionError(f'{name} {optimization}: unexpected output {output!r}')

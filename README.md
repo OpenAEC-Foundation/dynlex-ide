@@ -15,18 +15,21 @@ Open <http://127.0.0.1:8000/ide/>. The build fetches the pinned [website host](h
 
 ## Work with project files
 
-Studio’s **Files** panel shows the current program or shader project. Enter a project-relative path such as `tools/math.dl` in **File path** and choose **New file**. Select a file to edit it. **Rename file** accepts a new path, including a different directory. Update source imports that refer to the old name. **Delete file** asks for confirmation. Expand **Libraries** to browse the read-only modules supplied by this build.
+The **File**, **Run**, **Debug**, **View** and **Help** menus group Studio's commands. The toolbar provides Run, Debug, Stop and Save, with step controls during a debug session. Hover an icon to see its action. **View** switches the inspector between Files, Debug, Problems and keyboard shortcuts, and changes the theme.
 
-Run always compiles the project entry with all its files. Studio saves editable projects in this browser and keeps shared examples in separate drafts. Use **Save source** to download the current project file.
+Studio’s **Files** panel shows the current program or shader project. Choose **File → New file**, enter a project-relative path such as `tools/math.dl`, then press Enter or choose **Create file**. Escape cancels the form. Select a file to edit it. **File → Rename file** accepts a new path, including a different directory. Update source imports that refer to the old name. **Delete file** asks for confirmation. Expand **Libraries** to browse the read-only modules supplied by this build.
+
+Run always compiles the project entry with all its files. Studio saves editable projects in this browser and keeps shared examples in separate drafts. Use **File → Save source**, the Save icon, or Ctrl+S (Cmd+S on macOS) to download the current project file. Program output appears in the console below the editor, with Copy and Clear controls.
 
 Ctrl-click a symbol on Windows or Linux, or Cmd-click on macOS, to open its definition. On an import path, this opens the file that the compiler resolved. You can also place the caret and use **Definition** or F12. **Back** or Alt+Left returns to the previous location.
 
 ## Debug a program
 
-Choose **Debug program** to compile the project for debugging and pause before
-its first statement. Output appears in **Output**. Use **Step over**, **Step into**,
-**Step out**, **Continue debugging**, **Pause debugging**, and **Stop program**.
-While the editor has focus, the shortcuts are F5, F10, F11, Shift+F11 and F9
+Choose the Debug icon or **Debug → Start debugging** to compile the project for
+debugging and pause before its first statement. The inspector opens the call
+stack, variables and breakpoints. Use the toolbar or Debug menu to step over,
+into or out, continue, pause, or stop. Studio's shortcuts are F5 (debug/continue),
+F10 (step over), F11 (step into), Shift+F11 (step out), Shift+F5 (stop) and F9
 (toggle a breakpoint on the caret's line).
 
 While paused, hover over a variable to see its current runtime value. Select a

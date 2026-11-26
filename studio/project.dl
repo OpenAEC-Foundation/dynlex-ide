@@ -17,9 +17,6 @@ to [display Studio files in] {a pointer to website state:state}:
         set document to editor's document
         if changed:
             close the Studio file prompt in state
-            set the text of "Delete file" in instance to "Delete file"
-            set the text of "File status" in instance to ""
-            set the text of "File path" in instance to (document's filename)
             if document's writable:
                 expand Studio parent folders of (document's filename) with namespace (the string form of "p:") in browser
         set the text of "Project files" in instance to (the Studio tree text for project in browser)
@@ -144,7 +141,6 @@ to get [change Studio file using] {string:action} [in] {a pointer to website sta
             rename Studio document (editor's document) to path in editor
             expand Studio parent folders of path with namespace (the string form of "p:") in browser
     close the Studio file prompt in state
-    set the text of "Delete file" in instance to "Delete file"
     display Studio files in state
     animate UI view (state's view)
     return true

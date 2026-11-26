@@ -189,7 +189,3 @@ appearance IDE preview appearance:
     height is 180
     background is UI ink 9 11 18
     corner radius is 6
-
-appearance IDE link appearance:
-    use IDE command appearance
-    text is palette color "Studio accent"

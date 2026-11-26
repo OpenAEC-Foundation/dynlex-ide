@@ -2,16 +2,18 @@
 # attached by source_tools.dl and never changes the application's event state.
 import control.dl
 import source_search_views.dl
+import ../../dynlex-ui/ui/document_commands.dl
 
 appearance UI source header appearance:
     flow is horizontal
     padding is 8
-    gap is 6
-    font size is 12
+    gap is 2
+    font size is 14
 
 appearance UI source action appearance:
-    padding is 5
+    padding is 7
     corner radius is 4
+    minimum height is 32
 
 appearance UI source location appearance:
     padding is 5
@@ -22,14 +24,14 @@ the UI source content appearance using {UI appearance reference:appearance} mean
 
 source pane {C string:name} containing {C string:source} using {UI appearance reference:appearance} means: (a UI component 41 labeled "" styled "source-pane" at 0 0 sized 0 by 0 containing [
     (a UI container of kind 41 containing [
-        (button "Back") wearing UI source action appearance,
-        (button "Main file") wearing UI source action appearance,
-        (button "Definition") wearing UI source action appearance,
-        (button "Outline") wearing UI source action appearance,
-        (button "Instances") wearing UI source action appearance,
-        (button "Fixes") wearing UI source action appearance,
-        (button "Find") wearing UI source action appearance,
-        paragraph "Location" containing name using UI source location appearance
+        icon button "Back" titled "Go back (Alt+Left)" with icon "back" using UI source action appearance,
+        icon button "Main file" titled "Main file" with icon "home" using UI source action appearance,
+        paragraph "Location" containing name using UI source location appearance,
+        icon button "Definition" titled "Go to definition (F12)" with icon "link" using UI source action appearance,
+        icon button "Outline" titled "Outline (Ctrl+Shift+O)" with icon "list" using UI source action appearance,
+        icon button "Instances" titled "Instances" with icon "copy" using UI source action appearance,
+        icon button "Fixes" titled "Quick fixes" with icon "fix" using UI source action appearance,
+        icon button "Find" titled "Find (Ctrl+F)" with icon "search" using UI source action appearance
     ]) wearing UI source header appearance,
     UI source search controls,
     editor name containing source using (the UI source content appearance using appearance)

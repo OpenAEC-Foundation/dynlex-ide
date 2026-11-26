@@ -1,66 +1,114 @@
 import ../../../documentation.dl
+import ../../dynlex-ui/ui/document_commands.dl
 import types.dl
 import appearance.dl
 
 website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Write, compile and run DynLex programs in the browser.":
     region "Studio" using IDE workspace appearance:
-        paragraph "DYNLEX / STUDIO" using IDE signal appearance
-        paragraph "Working ideas." using title appearance
-        region "Studio tools" using IDE tools appearance:
-            link "Run program ▶" to "action:run-ide" using primary link appearance
-            link "Stop program ■" to "action:stop-ide" using IDE link appearance
-            link "Save source ↓" to "action:save-source" using IDE link appearance
-            link "Switch to light" to "action:toggle-ide-theme" using IDE link appearance
-        region "Debug controls" using IDE debug tools appearance:
-            link "Debug program" to "action:debug-ide" using IDE link appearance
-            link "Continue debugging" to "action:debug-continue" using IDE link appearance
-            link "Pause debugging" to "action:debug-pause" using IDE link appearance
-            link "Step over" to "action:debug-over" using IDE link appearance
-            link "Step into" to "action:debug-into" using IDE link appearance
-            link "Step out" to "action:debug-out" using IDE link appearance
-            link "Toggle breakpoint" to "action:breakpoint-ide" using IDE link appearance
-            link "Clear breakpoints" to "action:clear-breakpoints-ide" using IDE link appearance
+        region "Studio app bar" using IDE app bar appearance:
+            command link "Studio home" titled "DynLex Studio" with icon "" to "/index.html" using IDE identity appearance
+            region "Studio menus" using IDE menus appearance:
+                command menu "File menu" titled "File" using IDE menu appearance:
+                    command link "Create file command" titled "New file" with icon "new-file" to "action:prompt-new-studio-file" using IDE command appearance
+                    command link "Rename file command" titled "Rename file" with icon "rename" to "action:prompt-rename-studio-file" using IDE command appearance
+                    command link "Delete file command" titled "Delete file" with icon "delete" to "action:prompt-delete-studio-file" using IDE command appearance
+                    command link "Save source" titled "Save source" with icon "save" to "action:save-source" using IDE command appearance
+                command menu "Run menu" titled "Run" using IDE menu appearance:
+                    command link "Run program" titled "Run program" with icon "play" to "action:run-ide" using IDE command appearance
+                    command link "Stop program" titled "Stop program" with icon "stop" to "action:stop-ide" using IDE command appearance
+                    command link "Copy output" titled "Copy output" with icon "copy" to "action:copy-studio-output" using IDE command appearance
+                    command link "Clear output" titled "Clear output" with icon "clear" to "action:clear-studio-output" using IDE command appearance
+                command menu "Debug menu" titled "Debug" using IDE menu appearance:
+                    command link "Debug program" titled "Start debugging" with icon "debug" to "action:debug-ide" using IDE command appearance
+                    command link "Continue debugging" titled "Continue" with icon "play" to "action:debug-continue" using IDE command appearance
+                    command link "Pause debugging" titled "Pause" with icon "pause" to "action:debug-pause" using IDE command appearance
+                    command link "Step over" titled "Step over" with icon "step-over" to "action:debug-over" using IDE command appearance
+                    command link "Step into" titled "Step into" with icon "step-into" to "action:debug-into" using IDE command appearance
+                    command link "Step out" titled "Step out" with icon "step-out" to "action:debug-out" using IDE command appearance
+                    command link "Toggle breakpoint" titled "Toggle breakpoint" with icon "breakpoint" to "action:breakpoint-ide" using IDE command appearance
+                    command link "Clear breakpoints" titled "Clear breakpoints" with icon "clear-breakpoints" to "action:clear-breakpoints-ide" using IDE command appearance
+                command menu "View menu" titled "View" using IDE menu appearance:
+                    command link "Show files" titled "Files" with icon "folder" to "action:studio-files" using IDE command appearance
+                    command link "Show debugger" titled "Debugger" with icon "debug" to "action:studio-debugger" using IDE command appearance
+                    command link "Show problems" titled "Problems" with icon "fix" to "action:studio-problems" using IDE command appearance
+                    command link "Toggle theme" titled "Light theme" with icon "colors" to "action:toggle-ide-theme" using IDE command appearance
+                command menu "Help menu" titled "Help" using IDE menu appearance:
+                    command link "Keyboard shortcuts" titled "Keyboard shortcuts" with icon "keys" to "action:studio-shortcuts" using IDE command appearance
+                    command link "Language reference" titled "Language reference" with icon "docs" to "/wiki/index.html" using IDE command appearance
+            view group "Studio run toolbar" using IDE toolbar slot appearance:
+                region "Studio launch commands" using IDE toolbar appearance:
+                    command link "Toolbar Run" titled "Run" with icon "play" to "action:run-ide" using IDE primary command appearance
+                    command link "Toolbar Debug" titled "Debug" with icon "debug" to "action:debug-ide" using IDE secondary command appearance
+                    icon link "Toolbar Stop" titled "Stop (Shift+F5)" with icon "stop" to "action:stop-ide" using IDE stop command appearance
+                    icon link "Toolbar Save" titled "Save source (Ctrl+S)" with icon "save" to "action:save-source" using IDE command appearance
+                region "Studio session commands" using IDE toolbar appearance:
+                    command link "Toolbar Continue" titled "Continue" with icon "play" to "action:debug-continue" using IDE primary command appearance
+                    icon link "Toolbar Pause" titled "Pause" with icon "pause" to "action:debug-pause" using IDE command appearance
+                    icon link "Toolbar Stop debugging" titled "Stop (Shift+F5)" with icon "stop" to "action:stop-ide" using IDE stop command appearance
+                    icon link "Toolbar Step over" titled "Step over (F10)" with icon "step-over" to "action:debug-over" using IDE command appearance
+                    icon link "Toolbar Step into" titled "Step into (F11)" with icon "step-into" to "action:debug-into" using IDE command appearance
+                    icon link "Toolbar Step out" titled "Step out (Shift+F11)" with icon "step-out" to "action:debug-out" using IDE command appearance
+                    icon link "Toolbar Save debugging" titled "Save source (Ctrl+S)" with icon "save" to "action:save-source" using IDE command appearance
         view group "Studio appearance notice" using no UI appearance:
             paragraph "Studio appearance error" containing "An error occurred. Check the log." using IDE signal appearance
-        region "Studio workspace" using columns appearance:
-            tab group "IDE modes" using IDE tabs appearance:
-                tab "Program":
-                    source pane "IDE source" containing "import lib/std.dl\n\nprint line \"Hello from DynLex.\"" using IDE code appearance
-                tab "Shader":
-                    source pane "Shader source" containing the default website shader source using IDE code appearance
-            region "Studio result" using IDE card appearance:
-                paragraph "IDE status" containing "Ready." using IDE signal appearance
-                view group "IDE result" using stack appearance:
-                    region "Program result" using stack appearance:
-                        paragraph "Output" using subheading appearance
-                        paragraph "IDE output" containing "Run the program to see its output." using output appearance
-                        paragraph "Debugger shortcuts" containing "F5 debug / continue · F9 breakpoint · F10 step over · F11 step into · Shift+F11 step out" using IDE signal appearance
-                        paragraph "Call stack" using subheading appearance
-                        read only text surface "Debug stack" containing "" using IDE debug data appearance
-                        paragraph "Variables" using subheading appearance
-                        read only text surface "Debug variables" containing "" using IDE debug data appearance
-                        paragraph "Breakpoints" using subheading appearance
-                        read only text surface "Debug breakpoints" containing "" using IDE debug data appearance
-                    region "Shader result" using stack appearance:
-                        paragraph "Last successful build" using subheading appearance
+        region "Studio workspace" using IDE workspace columns appearance:
+            region "Studio editor column" using IDE editor column appearance:
+                tab group "IDE modes" using IDE tabs appearance:
+                    tab "Program":
+                        source pane "IDE source" containing "import lib/std.dl\n\nprint line \"Hello from DynLex.\"" using IDE code appearance
+                    tab "Shader":
+                        source pane "Shader source" containing the default website shader source using IDE code appearance
+                view group "IDE result" using no UI appearance:
+                    region "Program result" using IDE console appearance:
+                        region "Console header" using IDE console header appearance:
+                            paragraph "Output" using IDE console title appearance
+                            icon link "Console Copy" titled "Copy output" with icon "copy" to "action:copy-studio-output" using IDE command appearance
+                            icon link "Console Clear" titled "Clear output" with icon "clear" to "action:clear-studio-output" using IDE command appearance
+                        read only text surface "IDE output" containing "Program output appears here." using IDE console output appearance
+                    region "Shader result" using IDE console appearance:
+                        region "Preview playback" using IDE toolbar appearance:
+                            paragraph "Shader preview" using IDE console title appearance
+                            command link "Pause preview" titled "Pause preview" with icon "pause" to "action:toggle-preview" using IDE command appearance
+                            command link "Reset time" titled "Reset time" with icon "reset" to "action:reset-preview" using IDE command appearance
                         surface "IDE shader preview" using IDE preview appearance
-                        region "Preview playback" using cards appearance:
-                            link "Pause preview" to "action:toggle-preview" using IDE link appearance
-                            link "Reset time ↺" to "action:reset-preview" using IDE link appearance
-                region "Studio details" using IDE details appearance:
-                    region "Studio project" using stack appearance:
-                        paragraph "Files" using subheading appearance
-                        read only text surface "Project files" containing "" using IDE file tree appearance
-                    region "Studio problems" using stack appearance:
-                        paragraph "Problems" using subheading appearance
-                        paragraph "IDE diagnostics" containing "The language service checks your code as you type." using output appearance
-                        paragraph "IDE analysis" containing "Language service waiting." using IDE signal appearance
-                region "Project file management" using stack appearance:
-                    paragraph "File path label" containing "File path" using IDE signal appearance
-                    text field "File path" containing "" using IDE link appearance
-                    region "File actions" using IDE file actions appearance:
-                        link "New file" to "action:new-studio-file" using IDE link appearance
-                        link "Rename file" to "action:rename-studio-file" using IDE link appearance
-                        link "Delete file" to "action:delete-studio-file" using IDE link appearance
-                    paragraph "File status" containing "" using IDE signal appearance
-                link "Read the language reference →" to "/wiki/index.html" using IDE link appearance
+            region "Studio inspector panel" using IDE inspector appearance:
+                tab group "Studio inspector" using IDE tabs appearance:
+                    tab "Files":
+                        region "Studio project" using IDE panel content appearance:
+                            region "Explorer commands" using IDE toolbar appearance:
+                                paragraph "Workspace" using IDE console title appearance
+                                icon link "Explorer New" titled "New file" with icon "new-file" to "action:prompt-new-studio-file" using IDE command appearance
+                                icon link "Explorer Rename" titled "Rename file" with icon "rename" to "action:prompt-rename-studio-file" using IDE command appearance
+                                icon link "Explorer Delete" titled "Delete file" with icon "delete" to "action:prompt-delete-studio-file" using IDE stop command appearance
+                            read only text surface "Project files" containing "" using IDE file tree appearance
+                            view group "Studio file prompt" using no UI appearance:
+                                region "File operation" using IDE panel content appearance:
+                                    paragraph "File prompt title" containing "New file" using IDE panel heading appearance
+                                    view group "Studio filename entry" using no UI appearance:
+                                        text field "File path" containing "" using IDE field appearance
+                                    view group "Studio file operation" using no UI appearance:
+                                        command link "New file" titled "Create file" with icon "new-file" to "action:new-studio-file" using IDE primary command appearance
+                                        command link "Rename file" titled "Rename file" with icon "rename" to "action:rename-studio-file" using IDE primary command appearance
+                                        command link "Delete file" titled "Delete file" with icon "delete" to "action:delete-studio-file" using IDE stop command appearance
+                                    command link "Cancel file operation" titled "Cancel" with icon "" to "action:cancel-studio-file" using IDE command appearance
+                            paragraph "File status" containing "" using IDE signal appearance
+                    tab "Debug":
+                        region "Studio debugger" using IDE panel content appearance:
+                            paragraph "Debug inspector status" containing "Start debugging to inspect your program." using IDE signal appearance
+                            paragraph "Call stack" using IDE panel heading appearance
+                            read only text surface "Debug stack" containing "" using IDE debug data appearance
+                            paragraph "Variables" using IDE panel heading appearance
+                            read only text surface "Debug variables" containing "" using IDE variables appearance
+                            paragraph "Breakpoints" using IDE panel heading appearance
+                            read only text surface "Debug breakpoints" containing "" using IDE breakpoints appearance
+                    tab "Problems":
+                        region "Studio problems" using IDE panel content appearance:
+                            paragraph "IDE diagnostics" containing "The language service checks your code as you type." using IDE console output appearance
+                    tab "Keys":
+                        region "Studio keyboard help" using IDE panel content appearance:
+                            paragraph "Keyboard shortcuts title" containing "Keyboard shortcuts" using IDE panel heading appearance
+                            paragraph "Run shortcuts" containing "F5  Debug / continue\nShift+F5  Stop\nF9  Toggle breakpoint\nF10  Step over\nF11  Step into\nShift+F11  Step out" using IDE signal appearance
+                            paragraph "Editor shortcuts" containing "Ctrl+S  Save source\nCtrl+F  Find\nCtrl+Space  Complete\nF12  Definition\nAlt+Left  Go back\nCtrl+Shift+O  Outline" using IDE signal appearance
+        region "Studio status bar" using IDE status bar appearance:
+            paragraph "IDE status" containing "Ready." using IDE signal appearance
+            paragraph "IDE analysis" containing "Language service waiting." using IDE signal appearance

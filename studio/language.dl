@@ -4,6 +4,7 @@ import configuration.dl
 import project_storage.dl
 import theme.dl
 import debug_model.dl
+import chrome.dl
 
 to [open website source editors in] {a pointer to website state:state}:
     set instance to state's view's instance
@@ -40,6 +41,7 @@ to [advance website language analysis in] {a pointer to website state:state}:
     if (state's studio files' opened) and (state's route = "/ide/index.html"):
         display Studio files in state
         save changed Studio projects in state
+        present Studio chrome in state
     if UI source workspace (state's language) awaits an edit deadline at (view's seconds) seconds:
         animate UI view view
 
@@ -52,7 +54,7 @@ to [notice website source edit] {a pointer to UI instance:instance}:
             ignore cancel website request (state's shader editor's source request) in state
             set state's shader editor's source request to 0
         set state's shader editor's source failed to false
-        set the text of "Run program ▶" in instance to "Recompile shader ↻"
+        set the text of "Run program" in instance to "Build shader"
     synchronize UI source workspace (state's language) at (state's view's seconds) seconds
     save changed Studio projects in state
     animate UI view (state's view)

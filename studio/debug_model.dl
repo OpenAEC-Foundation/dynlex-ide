@@ -62,7 +62,8 @@ to [display Studio debug controls in] {a pointer to website state:state}:
     set the "Toggle breakpoint" control in instance enabled (enabled and ((the website source editor in state)'s document's writable))
     set the "Clear breakpoints" control in instance enabled enabled
     set target to "Continue debugging" if active, else "Debug program"
-    set scope to the control labeled "IDE source" in instance
+    set scope to the control labeled "Studio" in instance
+    bind UI key 294 with modifiers 1 from scope in instance activating (the control labeled "Stop program" in instance)
     bind UI key 294 with modifiers 0 from scope in instance activating (the control labeled target in instance)
     for each binding in [
         @intrinsic("construct", UI key binding, 298, 0, "Toggle breakpoint"),

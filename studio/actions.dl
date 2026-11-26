@@ -1,7 +1,10 @@
 import programs.dl
 import debug_interaction.dl
+import chrome.dl
 
 to get follow Studio action {string:destination} in {a pointer to website state:state}:
+    if follow Studio chrome action destination in state:
+        return true
     if follow Studio debug action destination in state:
         return true
     if change Studio file using destination in state:
@@ -33,8 +36,8 @@ to select website editor mode {integer:mode} in {a pointer to website state:stat
     set instance to state's view's instance
     set the value of "IDE modes" in instance to mode
     set the value of "IDE result" in instance to mode
-    set caption to "Recompile shader ↻" if (mode = 1), else "Run program ▶"
-    set the text of "Run program ▶" in instance to caption
+    set caption to "Build shader" if (mode = 1), else "Run program"
+    set the text of "Run program" in instance to caption
     set the text of "IDE status" in instance to "Ready."
     set the text of "IDE diagnostics" in instance to "Checking source…"
     set the text of "IDE analysis" in instance to "Analyzing…"
@@ -51,6 +54,7 @@ to notice website editor mode {a pointer to UI instance:instance}:
             toggle the website shader preview in state
 
 to bind Studio controls in {a pointer to UI instance:instance}:
+    initialize Studio chrome in (the website state in instance)
     initialize Studio debugging in (the website state in instance)
     bind (the control labeled "IDE source" in instance) in instance to (the function named "notice website source edit $") for event 0
     bind (the control labeled "Shader source" in instance) in instance to (the function named "notice website source edit $") for event 0

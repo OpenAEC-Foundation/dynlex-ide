@@ -16,7 +16,7 @@ to apply website appearance for {string:path} in {a pointer to website state:sta
         set view's theme's muted to UI palette color "Studio muted" in colors
         set view's theme's outline to UI palette color "Studio border" in colors
         set view's theme's accent to UI palette color "Studio accent" in colors
-    set the text of "Switch to light" in (view's instance) to ("Switch to dark" if state's editor light, else "Switch to light")
+    set the text of "Toggle theme" in (view's instance) to ("Dark theme" if state's editor light, else "Light theme")
     request a UI redraw in view
 
 to report website appearance failure {string:detail} in {a pointer to website state:state}:

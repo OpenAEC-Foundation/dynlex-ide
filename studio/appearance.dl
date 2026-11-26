@@ -2,84 +2,194 @@ import ../../../appearance.dl
 import colors.dl
 
 appearance IDE workspace appearance:
-    use content appearance
     background is palette color "Studio background"
     text is palette color "Studio text"
+    padding is 16
+    gap is 12
+    font size is 14
+    line spacing is 1.4
+    when viewport is below 700:
+        padding is 10
+        gap is 10
 
-appearance IDE card appearance:
-    use card appearance
+appearance IDE app bar appearance:
     background is palette color "Studio surface"
     border is palette color "Studio border"
+    border width is 1
+    corner radius is 8
+    padding is 8
+    gap is 8
+    columns are 12
+    stack below 1000
+
+appearance IDE identity appearance:
+    column span is 2
+    font is "assets/fonts/SpaceGrotesk-700.ttf"
+    font size is 20
+    text is palette color "Studio text"
+    padding is 6
+    lines do not wrap
+
+appearance IDE menus appearance:
+    column span is 4
+    flow is horizontal
+    gap is 2
+
+appearance IDE menu appearance:
+    font size is 14
+    padding is 7
+    corner radius is 5
+    minimum height is 34
+    text is palette color "Studio text"
+
+appearance IDE toolbar slot appearance:
+    column span is 6
+
+appearance IDE toolbar appearance:
+    flow is horizontal
+    gap is 6
+
+appearance IDE command appearance:
+    font size is 14
+    padding is 8
+    minimum height is 36
+    corner radius is 5
+    text is palette color "Studio text"
+
+appearance IDE primary command appearance:
+    use IDE command appearance
+    background is palette color "Studio accent"
+    text is palette color "Studio on accent"
+    font is bold
+
+appearance IDE secondary command appearance:
+    use IDE command appearance
+    background is palette color "Studio raised"
+    border is palette color "Studio border"
+    border width is 1
+
+appearance IDE stop command appearance:
+    use IDE command appearance
+    text is palette color "Studio danger"
+
+appearance IDE workspace columns appearance:
+    columns are 4
+    gap is 12
+    stack below 900
+
+appearance IDE editor column appearance:
+    column span is 3
+    gap is 12
+
+appearance IDE card appearance:
+    background is palette color "Studio surface"
+    border is palette color "Studio border"
+    border width is 1
+    corner radius is 8
+    padding is 12
+    gap is 10
 
 appearance IDE code appearance:
-    use code appearance
     background is palette color "Editor background"
     text is palette color "Editor text"
     border is palette color "Studio border"
     border width is 1
-    height is 560
+    corner radius is 8
+    height is 440
+    padding is 16
+    font is "assets/fonts/JetBrainsMono-400.ttf"
+    font size is 14
+    line spacing is 1.65
+    lines do not wrap
     when viewport is below 900:
         height is 360
     when viewport is below 700:
         height is 300
-
-appearance IDE signal appearance:
-    use signal appearance
-    text is palette color "Studio muted"
-
-appearance IDE link appearance:
-    use link appearance
-    text is palette color "Studio accent"
-    background is palette color "Studio surface"
-    border is palette color "Studio border"
-    border width is 1
+        padding is 12
 
 appearance IDE tabs appearance:
+    tabs fit contents
     font size is 14
-    gap is 12
+    gap is 0
 
-appearance IDE tools appearance:
-    columns are 4
-    gap is 12
-    when viewport is below 700:
-        columns are 2
-        gap is 8
+appearance IDE inspector appearance:
+    use IDE card appearance
+    padding is 8
 
-appearance IDE debug tools appearance:
-    columns are 4
-    gap is 8
-    when viewport is below 700:
-        columns are 2
+appearance IDE panel content appearance:
+    padding is 8
+    gap is 10
+
+appearance IDE panel heading appearance:
+    font size is 14
+    font is bold
+    text is palette color "Studio text"
+
+appearance IDE signal appearance:
+    font size is 13
+    text is palette color "Studio muted"
+
+appearance IDE status bar appearance:
+    use IDE toolbar appearance
+    gap is 20
+    padding is 4
+    font size is 13
+    text is palette color "Studio muted"
+
+appearance IDE console appearance:
+    use IDE card appearance
+    padding is 8
+    gap is 4
+
+appearance IDE console header appearance:
+    flow is horizontal
+    gap is 4
+
+appearance IDE console title appearance:
+    use IDE panel heading appearance
+    padding is 8
+
+appearance IDE console output appearance:
+    background is palette color "Studio surface"
+    text is palette color "Studio text"
+    font is "assets/fonts/JetBrainsMono-400.ttf"
+    font size is 14
+    line spacing is 1.55
+    height is 100
+    padding is 8
+    lines do not wrap
+
+appearance IDE file tree appearance:
+    use IDE console output appearance
+    height is 320
+    padding is 4
 
 appearance IDE debug data appearance:
     use IDE file tree appearance
-    height is 96
+    height is 80
+
+appearance IDE variables appearance:
+    use IDE debug data appearance
+    height is 192
+
+appearance IDE breakpoints appearance:
+    use IDE debug data appearance
+    height is 64
+
+appearance IDE field appearance:
     font size is 14
+    padding is 8
+    background is palette color "Editor background"
+    text is palette color "Studio text"
+    border is palette color "Studio border"
+    border width is 1
+    corner radius is 5
 
 appearance IDE preview appearance:
-    height is 320
+    height is 180
     background is UI ink 9 11 18
-    corner radius is 12
-    when viewport is below 700:
-        height is 0
-        aspect ratio is 16 by 9
+    corner radius is 6
 
-appearance IDE details appearance:
-    columns are 2
-    stack below 520
-    gap is 16
-
-appearance IDE file tree appearance:
-    use code appearance
-    text is palette color "Studio text"
-    background is palette color "Studio surface"
-    height is 154
-    padding is 8
-    font size is 13
-    lines do not wrap
-    when viewport is below 700:
-        height is 124
-
-appearance IDE file actions appearance:
-    columns are 3
-    gap is 6
+appearance IDE link appearance:
+    use IDE command appearance
+    text is palette color "Studio accent"

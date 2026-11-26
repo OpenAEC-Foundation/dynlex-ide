@@ -115,12 +115,13 @@ to [receive Studio debug notification] {a pointer to JSON value:message} [in] {a
         set session's paused to true
         set session's pause to (the JSON number named "pause" in message) as an integer
         set session's selected frame to 0
+        set the value of "Studio inspector" in (state's view's instance) to 1
         free session's snapshot
         set session's snapshot to a copy of JSON-RPC node (the JSON member named "frames" in message)
         display the Studio debug frame in state
         show Studio debug location (the JSON value at index 0 in (session's snapshot)) in state
         set reason to the JSON text named "reason" in message
-        set the text of "IDE status" in (state's view's instance) to ("Paused at breakpoint." if reason = "breakpoint", else "Paused. Hover a variable or step through the program.")
+        set the text of "IDE status" in (state's view's instance) to ("Paused at breakpoint." if reason = "breakpoint", else "Paused.")
     else:
         set the text of "IDE status" in (state's view's instance) to "Running…"
     display Studio debug controls in state

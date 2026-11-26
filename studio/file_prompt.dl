@@ -1,0 +1,41 @@
+import configuration.dl
+
+to [show Studio file prompt] {integer:operation} [in] {a pointer to website state:state}:
+    set instance to state's view's instance
+    set editor to the website source editor in state
+    set titles to ["New file", "Rename file", "Delete file?"]
+    set the value of "Studio inspector" in instance to 0
+    set the value of "Studio file prompt" in instance to 0
+    set the value of "Studio filename entry" in instance to (-1 if operation = 2, else 0)
+    set the value of "Studio file operation" in instance to operation
+    set the text of "File prompt title" in instance to (the item at operation in titles)
+    set the text of "File path" in instance to (the string form of "" if operation = 0, else editor's document's filename)
+    set the text of "File status" in instance to (editor's document's filename if operation = 2, else (the string form of ""))
+    set state's studio files' deletion to (editor's document if operation = 2, else (0 as a pointer to UI source document))
+    bind UI key 256 with modifiers 0 from (the control labeled "Studio" in instance) in instance activating (the control labeled "Cancel file operation" in instance)
+    if operation < 2:
+        set target to "New file" if operation = 0, else "Rename file"
+        bind UI key 257 with modifiers 0 from (the control labeled "File path" in instance) in instance activating (the control labeled target in instance)
+    reflow the UI document in (state's view)
+    set label to "Cancel file operation" if operation = 2, else "File path"
+    set layout to the UI layout labeled label in (state's view's layout)
+    refresh UI focus in (state's view)
+    set state's view's focus order to layout's order
+    set state's view's keyboard focus to true
+    refresh UI focus in (state's view)
+    animate UI view (state's view)
+
+to [close the Studio file prompt in] {a pointer to website state:state}:
+    set instance to state's view's instance
+    set state's studio files' deletion to 0 as a pointer to UI source document
+    set the value of "Studio file prompt" in instance to -1
+    set the text of "File status" in instance to ""
+    unbind UI key 256 with modifiers 0 from (the control labeled "Studio" in instance) in instance
+    unbind UI key 257 with modifiers 0 from (the control labeled "File path" in instance) in instance
+
+to [cancel the Studio file prompt in] {a pointer to website state:state}:
+    close the Studio file prompt in state
+    reflow the UI document in (state's view)
+    set editor to the website source editor in state
+    restore UI source location (editor's current) in editor in (state's view)
+    animate UI view (state's view)

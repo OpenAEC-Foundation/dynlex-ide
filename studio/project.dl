@@ -1,5 +1,6 @@
 import configuration.dl
 import file_tree.dl
+import file_prompt.dl
 import ../editor/source_project_files.dl
 
 to [display Studio files in] {a pointer to website state:state}:
@@ -14,7 +15,7 @@ to [display Studio files in] {a pointer to website state:state}:
         set browser's generation to project's file generation
         set document to editor's document
         if changed:
-            set browser's deletion to 0 as a pointer to UI source document
+            close the Studio file prompt in state
             set the text of "Delete file" in instance to "Delete file"
             set the text of "File status" in instance to ""
             set the text of "File path" in instance to (document's filename)
@@ -124,11 +125,7 @@ to get [change Studio file using] {string:action} [in] {a pointer to website sta
     set browser to the address of (state's studio files)
     synchronize UI source workspace (state's language) at (state's view's seconds) seconds
     if action = "action:delete-studio-file":
-        if browser's deletion != editor's document:
-            set browser's deletion to editor's document
-            set the text of "Delete file" in instance to "Confirm delete"
-            set the text of "File status" in instance to ("Delete " + editor's document's filename + "?")
-            return true
+        require condition (browser's deletion = editor's document) reporting "File deletion requires confirmation of the selected document"
         delete Studio document (editor's document) in editor in (state's view)
     else:
         set path to (the UI value for (the control labeled "File path" in instance) in instance)'s text
@@ -142,8 +139,7 @@ to get [change Studio file using] {string:action} [in] {a pointer to website sta
         else:
             rename Studio document (editor's document) to path in editor
             expand Studio parent folders of path with namespace (the string form of "p:") in browser
-    set browser's deletion to 0 as a pointer to UI source document
-    set the text of "File status" in instance to ""
+    close the Studio file prompt in state
     set the text of "Delete file" in instance to "Delete file"
     display Studio files in state
     animate UI view (state's view)

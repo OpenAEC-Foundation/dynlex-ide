@@ -23,6 +23,7 @@ to [show Studio file prompt] {integer:operation} [in] {a pointer to website stat
     set state's view's focus order to layout's order
     set state's view's keyboard focus to true
     refresh UI focus in (state's view)
+    reveal focused UI content in (state's view)
     animate UI view (state's view)
 
 to [close the Studio file prompt in] {a pointer to website state:state}:

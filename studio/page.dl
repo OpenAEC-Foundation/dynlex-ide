@@ -103,7 +103,7 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                             read only text surface "Debug breakpoints" containing "" using IDE breakpoints appearance
                     tab "Problems":
                         region "Studio problems" using IDE panel content appearance:
-                            paragraph "IDE diagnostics" containing "The language service checks your code as you type." using IDE console output appearance
+                            read only text surface "IDE diagnostics" containing "The language service checks your code as you type." using IDE problems appearance
                     tab "Keys":
                         region "Studio keyboard help" using IDE panel content appearance:
                             paragraph "Keyboard shortcuts title" containing "Keyboard shortcuts" using IDE panel heading appearance

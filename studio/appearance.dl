@@ -176,6 +176,12 @@ appearance IDE breakpoints appearance:
     use IDE debug data appearance
     height is 64
 
+appearance IDE problems appearance:
+    use IDE console output appearance
+    height is 400
+    font size is 13
+    lines wrap
+
 appearance IDE field appearance:
     font size is 14
     padding is 8

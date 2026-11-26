@@ -133,6 +133,9 @@ to get [change Studio file using] {string:action} [in] {a pointer to website sta
         set error to the new Studio file error for path in (editor's document's project)
         if error != "":
             set the text of "File status" in instance to error
+            reflow the UI document in (state's view)
+            reveal UI layout (the UI layout labeled "File status" in (state's view's layout)) in (state's view)
+            animate UI view (state's view)
             return true
         if action = "action:new-studio-file":
             set target to add Studio file path containing (the string form of "") to editor

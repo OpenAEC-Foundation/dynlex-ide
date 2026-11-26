@@ -149,14 +149,17 @@ appearance IDE console title appearance:
     use IDE panel heading appearance
     padding is 8
 
-appearance IDE console output appearance:
+appearance IDE output text appearance:
     background is palette color "Studio surface"
     text is palette color "Studio text"
     font is "assets/fonts/JetBrainsMono-400.ttf"
     font size is 14
     line spacing is 1.55
-    height is 100
     padding is 8
+
+appearance IDE console output appearance:
+    use IDE output text appearance
+    height is 100
     lines do not wrap
 
 appearance IDE file tree appearance:
@@ -177,10 +180,9 @@ appearance IDE breakpoints appearance:
     height is 64
 
 appearance IDE problems appearance:
-    use IDE console output appearance
+    use IDE output text appearance
     height is 400
     font size is 13
-    lines wrap
 
 appearance IDE field appearance:
     font size is 14

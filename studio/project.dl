@@ -1,6 +1,7 @@
 import configuration.dl
 import file_tree.dl
 import file_prompt.dl
+import programs.dl
 import ../editor/source_project_files.dl
 
 to [display Studio files in] {a pointer to website state:state}:

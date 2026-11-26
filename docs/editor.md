@@ -47,7 +47,7 @@ cleanup releases the projects belonging to its controls.
 
 Import `editor/source_panes.dl` for `source pane "Plan" containing text using
 appearance`. This is an ordinary immutable description containing an editor,
-filename, Back, Main file, Definition, Outline, Instances, Fixes and Find buttons. A workspace scopes those controls to their
+filename, Back, Main file, Outline, Instances and Find buttons. A workspace scopes those controls to their
 pane. Bare editors and panes use identical document and interaction code.
 Find/Replace is also library code shared by every pane. Ctrl/Cmd+F opens Find;
 Ctrl/Cmd+H focuses Replace. F3/Shift+F3 or query Enter/Shift+Enter move between
@@ -64,8 +64,7 @@ match marks occupy their own named layers, independently of execution and other
 application annotations.
 
 Enable `editor/source_tools.dl` once per workspace for completion and definition
-navigation. Ctrl-click or Cmd-click looks up the symbol under the pointer. F12 and
-the Definition button use the caret. Alt+Left returns through the location history. Visits retain each
+navigation. Right-click opens Go to Definition for the clicked token; Shift+F10 opens the context menu at the caret. Ctrl-click or Cmd-click looks up the symbol under the pointer. F12 uses the caret. Alt+Left returns through the location history. Visits retain each
 file's independent undo/redo, annotations, Unicode selection and scroll position.
 Imported sources are read-only; the main source's own read-only policy is restored
 on return.
@@ -97,10 +96,10 @@ instance notifies the language service, then refreshes semantic colors and hover
 facts after acknowledgement. Both tools support read-only imports. Stale results
 and acknowledgements are discarded when their source or project changes.
 
-F7 opens diagnostic quick fixes for the selection. The request retains opaque
+A contextual lightbulb appears only after the language service returns an enabled code action for the current selection. Ctrl+. (Cmd+. on macOS), F7 or clicking the lightbulb opens diagnostic quick fixes. The request retains opaque
 compiler diagnostic data, maps Unicode and hidden context through the shared
 source model, and refreshes diagnostics immediately before dispatch. Opening
-Fixes while analysis is pending therefore uses the completed analysis. Disabled
+fixes while analysis is pending therefore uses the completed analysis. Disabled
 actions cannot be selected. Edits are staged and committed through the standard
 text-edit planner, with one undo operation per changed source. A command following
 an action uses the same command handler as completion.

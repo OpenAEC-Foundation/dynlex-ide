@@ -1,0 +1,125 @@
+import source_actions.dl
+import source_tools_rendering.dl
+import ../../dynlex-ui/ui/document_commands.dl
+
+appearance UI source quick fix appearance:
+    padding is 6
+    minimum width is 28
+    minimum height is 28
+    corner radius is 5
+    background is UI ink 245 158 11
+    text is UI ink 24 24 27
+
+to [activate a contextual UI source fix] {a pointer to UI instance:instance}:
+    set tools to instance's event context as a pointer to UI source tools
+    if (tools's workspace as a pointer to UI source workspace)'s client's phase = 8:
+        return nothing
+    if (automatic UI source fixes (the address of (tools's quick fix)) are current) = false:
+        return nothing
+    set editor to the UI source editor in tools
+    restore UI source location (editor's current) in editor in (tools's view)
+    require condition (focus UI source tools tools) reporting "The quick fix could not focus its source editor"
+    request UI source fixes in tools
+
+to [paint contextual UI source controls] {a pointer:context} [on] {UI frame:frame}:
+    set tools to context as a pointer to UI source tools
+    paint UI floating controls (tools's quick fix's controls as a pointer) on frame
+
+to [close contextual UI source controls] {a pointer:context} [in] {a pointer to UI view:view}:
+    set tools to context as a pointer to UI source tools
+    release UI floating controls (tools's quick fix's controls as a pointer) in view
+    set tools's quick fix's controls to 0 as a pointer to UI floating controls
+    set tools's quick fix's control to 0 as a pointer to UI floating control
+
+function [initialize contextual UI source fixes in] {a pointer to UI source tools:tools}:
+    globals:
+        UI source quick fix appearance
+    execute:
+        set controls to UI floating controls in (tools's view)
+        set tools's quick fix's controls to controls
+        set controls's overlay's context to tools as a pointer
+        set controls's overlay's paint to (the function named "paint contextual UI source controls $ on $") as a pointer
+        set controls's overlay's closing to (the function named "close contextual UI source controls $ in $") as a pointer
+        set prototype to icon link "Contextual quick fix" titled "Quick fixes (Ctrl+.)" with icon "fix" to "" using UI source quick fix appearance
+        set control to a UI floating control from prototype named (the string form of "source-quick-fix") in controls
+        set tools's quick fix's control to control
+        bind (the address of (control's node)) in (tools's view's instance) to (the function named "activate a contextual UI source fix $") for event 0 with context (tools as a pointer)
+
+to get [contextual UI source fixes are available in] {a pointer to UI source tools:tools}:
+    set fix to the address of (tools's quick fix)
+    if (automatic UI source fixes fix are current) = false:
+        return false
+    if fix's query's ready = false:
+        return false
+    set actions to fix's query's result
+    if actions's kind = the JSON null kind:
+        return false
+    require condition (actions's kind = the JSON array kind) reporting "Code actions must return an array"
+    loop index from 0 to actions's length:
+        if ((the JSON value at index index in actions) has JSON member named "disabled") = false:
+            return true
+    return false
+
+to [update contextual UI source fixes in] {a pointer to UI source tools:tools}:
+    set fix to the address of (tools's quick fix)
+    set view to tools's view
+    if (focus UI source tools tools) = false:
+        cancel automatic UI source fixes in fix
+        hide UI floating control (fix's control)
+        return nothing
+    set document to tools's document
+    set editable to document's writable and (the UI element (tools's node) accepts edits in (view's instance))
+    set fresh to (document's diagnostic revision = document's revision) and (document's diagnostic project revision = document's project's revision)
+    if (((tools's mode != 0) or (editable = false)) or (fresh = false)) or (view's selection's composing):
+        cancel automatic UI source fixes in fix
+        hide UI floating control (fix's control)
+        return nothing
+    set editor to the UI source editor in tools
+    set anchor to editor's current's anchor
+    set caret to editor's current's caret
+    if (((fix's document != document) or (fix's anchor != anchor)) or (fix's caret != caret)) or ((automatic UI source fixes fix are current) = false):
+        cancel automatic UI source fixes in fix
+        hide UI floating control (fix's control)
+        set fix's document to document
+        set fix's anchor to anchor
+        set fix's caret to caret
+        set parameters to UI source fix parameters from (the minimum of anchor and caret) through (the maximum of anchor and caret) triggered by 2 in document
+        set fix's query to request UI source feature "textDocument/codeAction" with parameters parameters in document
+        set fix's query's parameters factory to (the function named "refresh UI source fix parameters $ in $") as a pointer
+        set fix's generation to fix's query's generation
+        free parameters
+    set available to contextual UI source fixes are available in tools
+    if fix's available != available:
+        set fix's available to available
+        set view's damaged to true
+    if available = false:
+        hide UI floating control (fix's control)
+
+to [paint the UI source quick fix in] {a pointer to UI source tools:tools} [on] {UI frame:frame}:
+    set fix to the address of (tools's quick fix)
+    if ((tools's mode != 0) or (tools's hover's popover's visible)) or ((contextual UI source fixes are available in tools) = false):
+        hide UI floating control (fix's control)
+        return nothing
+    set view to frame's view
+    set layout to the UI layout for element (tools's node) in view
+    if layout's paint generation != view's paint count:
+        hide UI floating control (fix's control)
+        return nothing
+    set position to fix's caret
+    set searching to true
+    loop while (position < tools's source's length) and searching:
+        if (the character at position in (tools's source)) = (10 as a byte):
+            set searching to false
+        else:
+            increment position
+    set anchor to the UI source anchor at byte position for (tools's node) in view
+    if anchor's height = 0.0:
+        hide UI floating control (fix's control)
+        return nothing
+    set clip to the UI intersection of (layout's hit bounds) and (the UI viewport bounds in view)
+    if ((anchor's y + anchor's height) < clip's y) or (anchor's y >= clip's y + clip's height):
+        hide UI floating control (fix's control)
+        return nothing
+    set x to the minimum of (anchor's x + 22.0) and ((clip's x + clip's width) - 18.0)
+    set y to the minimum of (anchor's y + 25.0) and (clip's y + clip's height)
+    place UI floating control (fix's control) at (a UI point at x and y) within clip

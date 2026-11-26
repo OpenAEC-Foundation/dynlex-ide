@@ -1,0 +1,28 @@
+import source_queries.dl
+import ../../dynlex-ui/ui/floating_controls.dl
+
+class:
+    patterns:
+        UI source quick fix
+    members:
+        document as a pointer to UI source document
+        query as a pointer to UI source query
+        generation as an integer
+        anchor as an integer
+        caret as an integer
+        available as a boolean
+        controls as a pointer to UI floating controls
+        control as a pointer to UI floating control
+
+to [cancel automatic UI source fixes in] {a pointer to UI source quick fix:fix}:
+    if fix's query != (0 as a pointer to UI source query):
+        if fix's query's generation = fix's generation:
+            cancel UI source query (fix's query)
+    set fix's query to 0 as a pointer to UI source query
+    set fix's document to 0 as a pointer to UI source document
+    set fix's available to false
+
+to get [automatic UI source fixes] {a pointer to UI source quick fix:fix} [are current]:
+    if fix's query = (0 as a pointer to UI source query):
+        return false
+    return (fix's query's generation = fix's generation) and (fix's query is current for UI source document (fix's document))

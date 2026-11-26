@@ -21,7 +21,9 @@ Studio’s **Files** panel shows the current program or shader project. Choose *
 
 Run always compiles the project entry with all its files. Studio saves editable projects in this browser and keeps shared examples in separate drafts. Use **File → Save source**, the Save icon, or Ctrl+S (Cmd+S on macOS) to download the current project file. Program output appears in the console below the editor, with Copy and Clear controls.
 
-Ctrl-click a symbol on Windows or Linux, or Cmd-click on macOS, to open its definition. On an import path, this opens the file that the compiler resolved. You can also place the caret and use **Definition** or F12. **Back** or Alt+Left returns to the previous location.
+Right-click a symbol and choose **Go to definition**, or use F12. Ctrl-click on Windows or Linux, or Cmd-click on macOS, opens the definition directly. On an import path, this opens the file that the compiler resolved. **Back** or Alt+Left returns to the previous location.
+
+A lightbulb appears beside the code when a quick fix is available at the caret. Click it to open the fixes, or press Ctrl+. (Cmd+. on macOS) or F7. Shift+F10 opens the editor context menu with the keyboard.
 
 ## Debug a program
 

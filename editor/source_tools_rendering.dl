@@ -4,25 +4,30 @@ import ../../dynlex-ui/ui/shapes.dl
 import ../../dynlex-ui/ui/clipping.dl
 import ../../dynlex-ui/ui/view_lookup.dl
 
-to get [the UI source tool anchor in] {a pointer to UI source tools:tools}:
-    set view to tools's view
-    set layout to the UI layout for element (tools's node) in view
-    set anchor to UI box at (layout's hit bounds' x + 8.0) (layout's hit bounds' y + 8.0) sized 1 (layout's typeface's size + 2)
+to get [the UI source anchor at byte] {integer:position} [for] {UI reference:node} [in] {a pointer to UI view:view}:
     set run to view's texts
     loop while run != @intrinsic("construct", a pointer to UI text run):
-        if (run's generation = view's paint count) and (run's source's element = tools's node):
-            set offset to tools's position - run's start
+        if (run's generation = view's paint count) and (run's source's element = node):
+            set offset to position - run's start
             if (0 <= offset <= run's text's length) and ((offset < run's text's length) or (run's end caret)):
                 set text to the substring of (run's text) from 0 spanning offset bytes
                 set box to UI box at (run's origin's x + (the width of text using (run's typeface))) (run's origin's y - run's typeface's size) sized 1 (run's typeface's size + 2)
                 return UI bounds box transformed by (run's transform)
         set run to run's next
-    return anchor
+    return UI box at 0 0 sized 0 0
+
+to get [the UI source tool anchor in] {a pointer to UI source tools:tools}:
+    set anchor to the UI source anchor at byte (tools's position) for (tools's node) in (tools's view)
+    if anchor's height > 0.0:
+        return anchor
+    set layout to the UI layout for element (tools's node) in (tools's view)
+    return UI box at (layout's hit bounds' x + 8.0) (layout's hit bounds' y + 8.0) sized 1 (layout's typeface's size + 2)
 
 to [paint UI source tools] {a pointer:context} [on] {UI frame:frame}:
     set tools to context as a pointer to UI source tools
     set popup to the address of (tools's choices)
     retire UI floating layout (the address of (popup's surface))
+    paint the UI source quick fix in tools on frame
     paint UI source hover in tools on frame
     if tools's mode = 0:
         return nothing
@@ -47,8 +52,13 @@ to [paint UI source tools] {a pointer:context} [on] {UI frame:frame}:
             set viewport to UI box at (surface's x) (viewport's y + viewport's height + 8.0) sized (surface's width) below
         else:
             set viewport to UI box at (surface's x) (surface's y) sized (surface's width) above
+    if tools's mode = 6:
+        set viewport to surface
     if tools's mode != 2:
-        if (tools's query is current for UI source document (tools's document)) = false:
+        if (the UI source tools tools are current) = false:
             return nothing
     set tools's overlay's layout to the address of (popup's surface)
-    paint UI choice popover popup anchored at (the UI source tool anchor in tools) within viewport using typeface styled (layout's appearance) on frame
+    set anchor to the UI source tool anchor in tools
+    if tools's mode = 6:
+        set anchor to tools's context anchor
+    paint UI choice popover popup anchored at anchor within viewport using typeface styled (layout's appearance) on frame

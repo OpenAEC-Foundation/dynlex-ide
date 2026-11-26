@@ -1,0 +1,143 @@
+import ../../../../dynlex-ui/testing/driver.dl
+import ../../../editor/source_tools.dl
+import ../../../editor/source_panes.dl
+
+appearance source appearance:
+    height is 160
+
+document editors:
+    source pane "Studio" containing "β alpha\nbeta" using source appearance
+
+to [answer contextual action query] {a pointer to UI source query:query} [with] {a pointer to JSON value:result}:
+    free query's result
+    set query's result to result
+    set query's queued to false
+    set query's ready to true
+
+to get [the contextual source point in] {a pointer to UI source editor:editor} [in] {a pointer to UI view:view}:
+    set run to view's texts
+    loop while run != (0 as a pointer to UI text run):
+        if (run's source's element = editor's node) and (run's start = 0):
+            return UI point (a UI point at (run's origin's x + (the width of (the string form of "β ") using (run's typeface)) + 1.0) and (run's origin's y - 5.0)) transformed by (run's transform)
+        set run to run's next
+    require condition false reporting "The context fixture did not paint its source"
+    return a new UI point
+
+set instance to an instance of editors
+set window to the address of instance
+set view to a UI view of window sized 900 by 600 using font "regular" with the test UI driver
+set workspace to a UI source workspace in window rooted at "file:///workspace"
+enable UI source tools for workspace in (the address of view)
+set editor to the UI source editor labeled "Studio" in workspace
+set document to editor's document
+require condition ((the UI element labeled "Definition" in (editor's pane)) = (0 as UI reference)) reporting "Go to Definition remained in the permanent toolbar"
+require condition ((the UI element labeled "Fixes" in (editor's pane)) = (0 as UI reference)) reporting "Quick fixes remained in the permanent toolbar"
+set files to a new JSON-RPC object
+configure UI source document document named "main.dl" at "file:///workspace/main.dl" prefixed by "# hidden\n" using UI CPU analysis with files files
+free files
+restore UI source location (editor's current) in editor in (the address of view)
+set view's selection's anchor and view's selection's caret to 3
+set document's diagnostic revision to document's revision
+set document's diagnostic project revision to document's project's revision
+update UI source tools in workspace
+set tools to workspace's tools
+set query to tools's quick fix's query
+require condition (query != (0 as a pointer to UI source query)) reporting "The caret did not request contextual code actions"
+require condition ((the JSON number named "triggerKind" in (the JSON member named "context" in (query's parameters))) = 2.0) reporting "Availability did not use an automatic code-action request"
+answer contextual action query query with (a new JSON-RPC array)
+update UI source tools in workspace
+ignore update UI view (the address of view)
+require condition (tools's quick fix's control's visible = false) reporting "An empty action list displayed a quick-fix control"
+set view's selection's anchor and view's selection's caret to 4
+update UI source tools in workspace
+set disabled to a JSON object containing [JSON text "title" is "Unavailable fix", JSON child "disabled" is (a JSON object containing [JSON text "reason" is "Unavailable"])]
+answer contextual action query (tools's quick fix's query) with (a JSON array containing [disabled])
+update UI source tools in workspace
+ignore update UI view (the address of view)
+require condition (tools's quick fix's control's visible = false) reporting "A disabled action displayed a lightbulb"
+set view's selection's anchor and view's selection's caret to 5
+update UI source tools in workspace
+set query to tools's quick fix's query
+set edit to a JSON object containing [JSON child "range" is (an LSP range from line 1 and character 2 to line 1 and character 7), JSON text "newText" is "A"]
+set action to a JSON object containing [JSON text "title" is "Replace alpha", JSON child "edit" is (a JSON object containing [JSON child "changes" is (a JSON object containing [JSON child (document's uri) is (a JSON array containing [edit])])])]
+set replay to a copy of JSON-RPC node action
+answer contextual action query query with (a JSON array containing [action])
+require condition (automatic UI source fixes (the address of (tools's quick fix)) are current) reporting "The action result lost its current source query"
+require condition (contextual UI source fixes are available in tools) reporting "An enabled action was not recognized as available"
+update UI source tools in workspace
+require condition (contextual UI source fixes are available in tools) reporting "Updating the editor discarded the available action"
+ignore update UI view (the address of view)
+set bulb to tools's quick fix's control
+require condition (bulb's visible) reporting "An available action did not reveal the contextual lightbulb"
+require condition (bulb's layout's hit bounds' width > 0.0) reporting "The visible lightbulb did not enter retained hit testing"
+set point to a UI point at (bulb's layout's painted bounds' x + 12.0) and (bulb's layout's painted bounds' y + 12.0)
+queue UI input of kind 1 key 0 at (point's x) (point's y) with modifiers 0 containing "" in (the address of view)
+queue UI input of kind 2 key 1 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+process UI input in (the address of view)
+update UI source tools in workspace
+ignore update UI view (the address of view)
+require condition (bulb's visible) reporting "Pressing the lightbulb lost its source context before release"
+queue UI input of kind 2 key 0 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+process UI input in (the address of view)
+require condition (tools's mode = 5) reporting "Clicking the lightbulb did not open its fixes"
+answer contextual action query (tools's query) with (a JSON array containing [replay])
+update UI source tools in workspace
+ignore update UI view (the address of view)
+queue UI input of kind 3 key 257 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+process UI input in (the address of view)
+require condition (document's source = "β A\nbeta") reporting "The contextual fix ignored Unicode or protected context"
+queue UI input of kind 3 key 90 at 0.0 0.0 with modifiers 2 containing "" in (the address of view)
+ignore update UI view (the address of view)
+synchronize UI source workspace workspace at 2.0 seconds
+require condition (document's source = "β alpha\nbeta") reporting "The contextual fix lost undo"
+require condition (bulb's visible = false) reporting "An old lightbulb remained after an edit"
+ignore update UI view (the address of view)
+set layout to the UI layout for element (editor's node) in (the address of view)
+queue UI input of kind 1 key 0 at (layout's painted bounds' x + 300.0) (layout's painted bounds' y + 15.0) with modifiers 0 containing "" in (the address of view)
+queue UI input of kind 2 key 3 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+queue UI input of kind 2 key 2 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+process UI input in (the address of view)
+require condition ((tools's mode = 6) and (tools's choices' first item's enabled = false)) reporting "Empty editor space did not expose its disabled definition action"
+queue UI input of kind 3 key 256 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+process UI input in (the address of view)
+set point to the contextual source point in editor in (the address of view)
+queue UI input of kind 1 key 0 at (point's x) (point's y) with modifiers 0 containing "" in (the address of view)
+queue UI input of kind 2 key 3 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+queue UI input of kind 2 key 2 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+process UI input in (the address of view)
+ignore update UI view (the address of view)
+require condition ((tools's mode = 6) and (tools's choices' count = 1)) reporting "Right-click did not open the source context menu"
+require condition (tools's navigation's phase = 0) reporting "Right-click followed a definition before choosing it"
+set point to a UI point at (tools's choices' bounds' x + 20.0) and (tools's choices' bounds' y + 18.0)
+queue UI input of kind 1 key 0 at (point's x) (point's y) with modifiers 0 containing "" in (the address of view)
+queue UI input of kind 2 key 1 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+queue UI input of kind 2 key 0 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+process UI input in (the address of view)
+require condition (tools's navigation's phase = 1) reporting "The context action did not request a definition"
+set parameters to tools's navigation's query's parameters
+set position to the JSON member named "position" in parameters
+require condition (((the JSON number named "line" in position) = 1.0) and ((the JSON number named "character" in position) = 2.0)) reporting "The context menu resolved the old caret instead of the clicked Unicode token"
+set UI control (editor's node) read only true in window
+update UI source tools in workspace
+require condition (bulb's visible = false) reporting "Read-only source offered a modifying quick fix"
+queue UI input of kind 3 key 299 at 0.0 0.0 with modifiers 1 containing "" in (the address of view)
+process UI input in (the address of view)
+require condition (tools's mode = 6) reporting "Read-only source lost its keyboard context menu"
+queue UI input of kind 3 key 256 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
+process UI input in (the address of view)
+require condition (tools's mode = 0) reporting "Escape did not close the source context menu"
+set UI control (editor's node) read only false in window
+set document's diagnostic revision to document's revision
+set document's diagnostic project revision to document's project's revision
+update UI source tools in workspace
+set query to tools's quick fix's query
+set UI text of (editor's node) in window to "changed"
+synchronize UI source workspace workspace at 3.0 seconds
+answer contextual action query query with (a JSON array containing [a JSON object containing [JSON text "title" is "Stale action", JSON text "command" is "ignored"]])
+update UI source tools in workspace
+require condition ((bulb's visible = false) and (tools's mode = 0)) reporting "A late action result reopened a lightbulb for an edited document"
+close the address of view
+require condition (tools's quick fix's controls = (0 as a pointer to UI floating controls)) reporting "Closing the view retained contextual controls"
+free UI source workspace workspace
+close window
+print line "Contextual fixes follow availability, Unicode selection, undo and focus; right-click and keyboard definition menus share source navigation."

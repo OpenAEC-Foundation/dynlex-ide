@@ -43,7 +43,8 @@ loop while index < the length of labels:
         queue UI input of kind 3 key 296 at 0.0 0.0 with modifiers 0 containing "" in (the address of view)
         process UI input in (the address of view)
     else:
-        activate (editor's fixes) belonging to (editor's fixes) in window
+        queue UI input of kind 3 key 46 at 0.0 0.0 with modifiers 2 containing "" in (the address of view)
+        process UI input in (the address of view)
     set tools to workspace's tools
     set query to tools's query
     require condition (query != @intrinsic("construct", a pointer to UI source query)) reporting "The fixes action did not request code actions."

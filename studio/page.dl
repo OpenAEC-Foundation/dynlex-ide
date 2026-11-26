@@ -108,7 +108,7 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                         region "Studio keyboard help" using IDE panel content appearance:
                             paragraph "Keyboard shortcuts title" containing "Keyboard shortcuts" using IDE panel heading appearance
                             paragraph "Run shortcuts" containing "F5  Debug / continue\nShift+F5  Stop\nF9  Toggle breakpoint\nF10  Step over\nF11  Step into\nShift+F11  Step out" using IDE signal appearance
-                            paragraph "Editor shortcuts" containing "Ctrl+S  Save source\nCtrl+F  Find\nCtrl+Space  Complete\nF12  Definition\nAlt+Left  Go back\nCtrl+Shift+O  Outline" using IDE signal appearance
+                            paragraph "Editor shortcuts" containing "Ctrl+S  Save source\nCtrl+F  Find\nCtrl+Space  Complete\nCtrl+.  Quick fix\nShift+F10  Context menu\nF12  Definition\nAlt+Left  Go back\nCtrl+Shift+O  Outline" using IDE signal appearance
         region "Studio status bar" using IDE status bar appearance:
             paragraph "IDE status" containing "Ready." using IDE signal appearance
             paragraph "IDE analysis" containing "Language service waiting." using IDE signal appearance

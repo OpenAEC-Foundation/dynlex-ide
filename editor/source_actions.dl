@@ -29,6 +29,12 @@ to [refresh UI source fix parameters] {a pointer to UI source query:query} [in] 
     set context to the JSON member named "context" in (query's parameters)
     set JSON member (JSON child "diagnostics" is diagnostics) in context
 
+to get [UI source fix parameters from] {integer:first} [through] {integer:last} [triggered by] {integer:trigger} [in] {a pointer to UI source document:document}:
+    set range to a JSON object containing [JSON child "start" is (the UI analysis position for source byte first in document), JSON child "end" is (the UI analysis position for source byte last in document)]
+    set diagnostics to UI source action diagnostics within range in document
+    set context to a JSON object containing [JSON child "diagnostics" is diagnostics, JSON number "triggerKind" is trigger, JSON child "only" is (a JSON array containing [a new JSON-RPC text for "quickfix"])]
+    return a JSON object containing [JSON child "textDocument" is (an LSP text document identifier for (document's uri)), JSON child "range" is range, JSON child "context" is context]
+
 to [request UI source fixes in] {a pointer to UI source tools:tools}:
     set view to tools's view
     set value to the UI value for (tools's node) in (view's instance)
@@ -41,10 +47,9 @@ to [request UI source fixes in] {a pointer to UI source tools:tools}:
     set document to tools's document
     set first to the minimum of (editor's current's anchor) and (editor's current's caret)
     set last to the maximum of (editor's current's anchor) and (editor's current's caret)
-    set range to a JSON object containing [JSON child "start" is (the UI analysis position for source byte first in document), JSON child "end" is (the UI analysis position for source byte last in document)]
-    set diagnostics to UI source action diagnostics within range in document
-    set context to a JSON object containing [JSON child "diagnostics" is diagnostics, JSON number "triggerKind" is 1, JSON child "only" is (a JSON array containing [a new JSON-RPC text for "quickfix"])]
-    set parameters to a JSON object containing [JSON child "textDocument" is (an LSP text document identifier for (document's uri)), JSON child "range" is range, JSON child "context" is context]
+    cancel automatic UI source fixes in (the address of (tools's quick fix))
+    hide UI floating control (tools's quick fix's control)
+    set parameters to UI source fix parameters from first through last triggered by 1 in document
     request UI source inspection "textDocument/codeAction" with parameters as mode 5 reporting "Finding fixes…" in tools
     set tools's query's parameters factory to (the function named "refresh UI source fix parameters $ in $") as a pointer
     free parameters

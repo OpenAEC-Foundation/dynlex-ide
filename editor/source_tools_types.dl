@@ -3,6 +3,7 @@ import source_queries.dl
 import source_navigation_types.dl
 import source_hover_types.dl
 import ../../dynlex-ui/ui/choice_popovers.dl
+import source_quick_fix_types.dl
 
 class:
     patterns:
@@ -30,6 +31,15 @@ class:
         selection query as a pointer to UI source query
         selection document as a pointer to UI source document
         selection generation as an integer
+        quick fix as UI source quick fix
+        context anchor as UI bounds
+        context revision as an integer
+        context project revision as an integer
+
+to get [the UI source tools] {a pointer to UI source tools:tools} [are current]:
+    if tools's mode = 6:
+        return (tools's document's available) and ((tools's context revision = tools's document's revision) and (tools's context project revision = tools's document's project's revision))
+    return tools's query is current for UI source document (tools's document)
 
 to [dismiss UI source tools] {a pointer to UI source tools:tools}:
     if (tools's mode = 0) and (tools's query = @intrinsic("construct", a pointer to UI source query)):
@@ -62,6 +72,8 @@ to [free UI source tools] {a pointer to UI source tools:tools}:
     if tools = @intrinsic("construct", a pointer to UI source tools):
         return nothing
     if tools's view != @intrinsic("construct", a pointer to UI view):
+        cancel automatic UI source fixes in (the address of (tools's quick fix))
+        close UI floating controls (tools's quick fix's controls)
         dismiss UI source hover (the address of (tools's hover)) in (tools's view)
         clear UI text popover (the address of (tools's hover's popover)) in (tools's view)
         detach UI overlay (tools's overlay) in (tools's view)

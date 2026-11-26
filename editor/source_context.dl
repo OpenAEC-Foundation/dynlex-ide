@@ -1,0 +1,64 @@
+import source_navigation.dl
+import source_hover.dl
+
+to [open UI source context at] {UI bounds:anchor} [for byte] {integer:position} [in] {a pointer to UI source tools:tools}:
+    begin UI source interaction in tools
+    set tools's mode to 6
+    set tools's position to position
+    set tools's context anchor to anchor
+    set tools's context revision to tools's document's revision
+    set tools's context project revision to tools's document's project's revision
+    set tools's choices' preferred width to 276.0
+    set tools's choices' on release to true
+    add UI choice (the string form of "Go to definition (F12)") enabled true to (the address of (tools's choices))
+    set tools's choices' last item's icon to "link"
+    show UI choice popover (the address of (tools's choices)) reporting "" with hint "" in (tools's view)
+
+to get [read UI source context in] {a pointer to UI source tools:tools}:
+    set view to tools's view
+    if (tools's mode = 6) and (view's input kind = 5):
+        if ((the UI cursor in view) is inside (tools's choices' bounds)) = false:
+            dismiss UI source tools tools
+    if (view's input kind != 2) or (view's input code != 3):
+        return false
+    if tools's mode = 6:
+        dismiss UI source tools tools
+    set point to the UI cursor in view
+    set layout to the UI hit at point in view
+    if layout = (0 as a pointer to UI layout):
+        return false
+    set editor to (tools's workspace as a pointer to UI source workspace)'s editors
+    loop while editor != (0 as a pointer to UI source editor):
+        if editor's node = layout's node:
+            return open UI source pointer context for editor at point in tools
+        set editor to editor's next
+    return false
+
+to get [open UI source pointer context for] {a pointer to UI source editor:editor} [at] {UI point:point} [in] {a pointer to UI source tools:tools}:
+    set view to tools's view
+    if editor's workspace's client's phase = 8:
+        return false
+    if (editor's document's available = false) or ((the UI element (editor's node) is enabled in (view's instance)) = false):
+        return false
+    set run to the UI text hit at point in view
+    set position to -1
+    if run != (0 as a pointer to UI text run):
+        if run's source's element = editor's node:
+            set position to the UI source byte under point in run
+    remember the UI source location of editor in view
+    if position >= 0:
+        if (position < (the minimum of (editor's current's anchor) and (editor's current's caret))) or (position > (the maximum of (editor's current's anchor) and (editor's current's caret))):
+            set editor's current's anchor and editor's current's caret to position
+    restore UI source location (editor's current) in editor in view
+    require condition (focus UI source tools tools) reporting "The context menu could not focus its source editor"
+    open UI source context at (UI box at (point's x) (point's y) sized 1 1) for byte position in tools
+    set tools's choices' first item's enabled to position >= 0
+    if position < 0:
+        set tools's choices' selected to -1
+    return true
+
+to [accept UI source context in] {a pointer to UI source tools:tools}:
+    set editor to the UI source editor in tools
+    set editor's current's anchor and editor's current's caret to tools's position
+    restore UI source location (editor's current) in editor in (tools's view)
+    request a UI source definition in tools

@@ -18,6 +18,9 @@ to get [focus UI source tools] {a pointer to UI source tools:tools}:
         set tools's edited to false
         set tools's composed to false
         return false
+    if (view's focused = tools's quick fix's control's layout) or (view's pressed = tools's quick fix's control's layout):
+        if automatic UI source fixes (the address of (tools's quick fix)) are current:
+            return true
     set editor to workspace's editors
     loop while editor != @intrinsic("construct", a pointer to UI source editor):
         if editor's node = view's text focus:

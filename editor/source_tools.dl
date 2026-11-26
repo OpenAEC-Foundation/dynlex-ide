@@ -10,6 +10,8 @@ import source_hover.dl
 import source_tool_focus.dl
 import source_inspection.dl
 import source_actions.dl
+import source_quick_fix.dl
+import source_context.dl
 
 to get [follow a UI source definition under the pointer in] {a pointer to UI source tools:tools}:
     set view to tools's view
@@ -34,6 +36,8 @@ to get [follow a UI source definition under the pointer in] {a pointer to UI sou
 
 to get [read UI source tools] {a pointer:context} [in] {a pointer to UI view:view}:
     set tools to context as a pointer to UI source tools
+    if read UI source context in tools:
+        return true
     if follow a UI source definition under the pointer in tools:
         return true
     if read UI source hover in tools:
@@ -58,13 +62,17 @@ to get [read UI source tools] {a pointer:context} [in] {a pointer to UI view:vie
     if (view's key press = 301) and (view's modifiers = 0):
         request a UI source definition in tools
         return true
+    if ((view's key press = 299) and (view's modifiers = 1)) or ((view's key press = 348) and (view's modifiers = 0)):
+        set tools's position to view's selection's caret
+        open UI source context at (the UI source tool anchor in tools) for byte (view's selection's caret) in tools
+        return true
     if (view's key press = 79) and ((view's modifiers = 3) or (view's modifiers = 9)):
         request a UI source outline in tools
         return true
     if (view's key press = 297) and (view's modifiers = 0):
         request UI source instances in tools
         return true
-    if (view's key press = 296) and (view's modifiers = 0):
+    if ((view's key press = 296) and (view's modifiers = 0)) or ((view's key press = 46) and ((view's modifiers = 2) or (view's modifiers = 8))):
         request UI source fixes in tools
         return true
     set editable to (tools's document's writable) and (the UI element (tools's node) accepts edits in (view's instance))
@@ -74,7 +82,7 @@ to get [read UI source tools] {a pointer:context} [in] {a pointer to UI view:vie
         set tools's edited to false
     set opened to tools's mode = 1
     if (tools's mode != 0) and (tools's mode != 2):
-        if ((tools's query is current for UI source document (tools's document)) = false) or ((tools's mode != 3) and (tools's position != view's selection's caret)):
+        if ((the UI source tools tools are current) = false) or (((tools's mode != 3) and (tools's mode != 6)) and (tools's position != view's selection's caret)):
             dismiss UI source tools tools
     set command to ((view's modifiers bitwise and 10) != 0) and ((view's modifiers bitwise and 4) = 0)
     if command and (view's key press = 32):
@@ -114,6 +122,8 @@ to get [read UI source tools] {a pointer:context} [in] {a pointer to UI view:vie
             accept the UI source completion in tools
         else if tools's mode = 5:
             accept UI source fix in tools
+        else if tools's mode = 6:
+            accept UI source context in tools
         else:
             accept UI source inspection in tools
         return true
@@ -121,6 +131,7 @@ to get [read UI source tools] {a pointer:context} [in] {a pointer to UI view:vie
 
 to [close UI source tools] {a pointer:context} [in] {a pointer to UI view:view}:
     set tools to context as a pointer to UI source tools
+    cancel automatic UI source fixes in (the address of (tools's quick fix))
     dismiss UI source hover (the address of (tools's hover)) in view
     clear UI text popover (the address of (tools's hover's popover)) in view
     set tools's view to @intrinsic("construct", a pointer to UI view)
@@ -136,6 +147,7 @@ to [enable UI source tools for] {a pointer to UI source workspace:workspace} [in
     set tools's choices to a UI choice popover
     set tools's items to a new JSON-RPC array
     set tools's overlay to a UI overlay in view with context (tools as a pointer) handling input ((the function named "read UI source tools $ in $") as a pointer) painting ((the function named "paint UI source tools $ on $") as a pointer) closing ((the function named "close UI source tools $ in $") as a pointer)
+    initialize contextual UI source fixes in tools
     bind UI source panes in workspace
 
 to [update UI source tools in] {a pointer to UI source workspace:workspace}:
@@ -147,6 +159,7 @@ to [update UI source tools in] {a pointer to UI source workspace:workspace}:
     update UI source instance selection in tools
     update UI source navigation in tools
     update UI source hover in tools
+    update contextual UI source fixes in tools
     set editor to workspace's editors
     loop while editor != @intrinsic("construct", a pointer to UI source editor):
         if editor's pane != @intrinsic("construct", UI reference):
@@ -155,7 +168,7 @@ to [update UI source tools in] {a pointer to UI source workspace:workspace}:
     if (focus UI source tools tools) = false:
         return nothing
     if (tools's mode != 0) and (tools's mode != 2):
-        if ((tools's query is current for UI source document (tools's document)) = false) or ((tools's mode != 3) and (tools's position != view's selection's caret)):
+        if ((the UI source tools tools are current) = false) or (((tools's mode != 3) and (tools's mode != 6)) and (tools's position != view's selection's caret)):
             dismiss UI source tools tools
     if tools's edited and (view's selection's composing = false):
         if view's seconds >= tools's deadline:

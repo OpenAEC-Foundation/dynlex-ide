@@ -13,6 +13,7 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                     command link "Rename file command" titled "Rename file" with icon "rename" to "action:prompt-rename-studio-file" using IDE command appearance
                     command link "Delete file command" titled "Delete file" with icon "delete" to "action:prompt-delete-studio-file" using IDE command appearance
                     command link "Save source" titled "Save source" with icon "save" to "action:save-source" using IDE command appearance
+                    command link "Add library command" titled "Add library" with icon "new-file" to "action:add-library" using IDE command appearance
                 command menu "Run menu" titled "Run" using IDE menu appearance:
                     command link "Run program" titled "Run program" with icon "play" to "action:run-ide" using IDE command appearance
                     command link "Stop program" titled "Stop program" with icon "stop" to "action:stop-ide" using IDE command appearance
@@ -92,6 +93,32 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                                         command link "Delete file" titled "Delete file" with icon "delete" to "action:delete-studio-file" using IDE stop command appearance
                                     command link "Cancel file operation" titled "Cancel" with icon "" to "action:cancel-studio-file" using IDE command appearance
                             paragraph "File status" containing "" using IDE signal appearance
+                            region "Project libraries" using IDE panel content appearance:
+                                paragraph "Libraries" using IDE panel heading appearance
+                                command link "＋ Add Library" titled "＋ Add Library" with icon "new-file" to "action:add-library" using IDE command appearance
+                                view group "Library picker" using no UI appearance:
+                                    region "Library picker fields" using IDE panel content appearance:
+                                        paragraph "Search libraries label" containing "Search libraries" using IDE signal appearance
+                                        text field "Search libraries" containing "" using IDE field appearance
+                                        paragraph "Available libraries label" containing "Available libraries" using IDE signal appearance
+                                        choice field "Available library" choosing "":
+                                        paragraph "Library description" containing "Choose Add Library to browse libraries." using IDE signal appearance
+                                        paragraph "Library import name label" containing "Import name" using IDE signal appearance
+                                        text field "Import library as" containing "ui" using IDE field appearance
+                                        paragraph "Library import name help" containing "Use lowercase letters, digits, and hyphens." using IDE signal appearance
+                                        command link "Add selected library" titled "Add selected library" with icon "new-file" to "action:install-library" using IDE command appearance
+                                        paragraph "Library source URL label" containing "Repository or SDK archive URL" using IDE signal appearance
+                                        text field "Library source URL" containing "" using IDE field appearance
+                                        command link "Add from URL" titled "Add from URL" with icon "link" to "action:library-url" using IDE command appearance
+                                        command link "Browse local folder…" titled "Browse local folder…" with icon "folder" to "action:library-folder" using IDE command appearance
+                                        command link "Close library picker" titled "Close library picker" with icon "clear" to "action:close-library-picker" using IDE command appearance
+                                paragraph "Installed libraries label" containing "Installed libraries" using IDE signal appearance
+                                choice field "Installed library" choosing "":
+                                region "Library actions" using IDE file actions appearance:
+                                    command link "Update library" titled "Update library" with icon "reset" to "action:update-library" using IDE command appearance
+                                    command link "Remove library" titled "Remove library" with icon "delete" to "action:remove-library" using IDE command appearance
+                                    command link "Library documentation" titled "Library documentation" with icon "docs" to "action:library-documentation" using IDE command appearance
+                                paragraph "Library status" containing "" using IDE signal appearance
                     tab "Debug":
                         region "Studio debugger" using IDE panel content appearance:
                             paragraph "Debug inspector status" containing "Start debugging to inspect your program." using IDE signal appearance

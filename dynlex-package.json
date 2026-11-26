@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "name": "dynlex-ide",
+  "title": "DynLex Editor",
+  "publisher": "OpenAEC-Foundation",
+  "importName": "ide",
+  "description": "DynLex code editor, navigation and language tools",
+  "documentation": "https://github.com/OpenAEC-Foundation/dynlex-ide#readme",
+  "exports": {"*": "editor/*"},
+  "dependencies": {"ui": {"catalog": "dynlex-ui"}},
+  "files": ["editor", "studio", "LICENSE.md"]
+}

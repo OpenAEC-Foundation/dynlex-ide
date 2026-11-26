@@ -3,6 +3,9 @@ import source_completions.dl
 import ../../dynlex-ui/ui/text_input.dl
 
 to [execute UI source command] {a pointer to JSON value:command} [in] {a pointer to UI source tools:tools}:
+    if tools's command handler != (0 as a pointer):
+        if @intrinsic("call pointer", tools's command handler, a boolean, command, tools):
+            return nothing
     set name to the JSON text named "command" in command
     if name = "editor.action.triggerSuggest":
         request UI source completions in tools

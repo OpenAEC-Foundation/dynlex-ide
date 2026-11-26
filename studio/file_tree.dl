@@ -10,6 +10,11 @@ class:
         expanded as a pointer to JSON value
         libraries as a pointer to JSON value
         loading libraries as a boolean
+        catalog as a pointer to JSON value
+        library request as an integer
+        library target as a pointer to UI source project
+        library restores as (a pointer to UI source project) array of 2 items
+        library preferred alias as a string
         editor as a pointer to UI source editor
         document as a pointer to UI source document
         generation as an integer
@@ -64,13 +69,15 @@ to [expand Studio parent folders of] {string:path} [with namespace] {string:spac
 to get [the Studio tree text for] {a pointer to UI source project:project} [in] {a pointer to Studio file browser:browser}:
     free browser's rows
     set browser's rows to a new JSON-RPC array
-    set files to the UI source files of project
+    set files to the UI application files of project
     append Studio tree children in (the string form of "") from files with namespace (the string form of "p:") indented (the string form of "") to browser
     free files
     set expanded to browser's expanded has JSON member named "l:"
     append Studio tree row (the string form of "l:") displaying ((the string form of "▾ Libraries") if expanded, else (the string form of "▸ Libraries")) to browser
     if expanded and (browser's libraries != (0 as a pointer to JSON value)):
         append Studio tree children in (the string form of "") from (browser's libraries) with namespace (the string form of "l:") indented (the string form of "    ") to browser
+    if expanded:
+        append Studio tree children in (the string form of ".dynlex/packages/") from (project's libraries) with namespace (the string form of "d:") indented (the string form of "    ") to browser
     set text to the string form of ""
     loop index from 0 to (browser's rows' length):
         if index > 0:

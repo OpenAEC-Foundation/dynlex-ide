@@ -44,6 +44,14 @@ Browser debugging requires JavaScript Promise Integration for WebAssembly
 (`WebAssembly.Suspending` and `WebAssembly.promising`). Use a current browser
 with those APIs enabled. Shader programs use the shader preview controls.
 
+Choose **＋ Add Library** to search the library catalog, select a library and add
+it under an import name such as `ui`. The picker also accepts a GitHub repository,
+SDK archive URL or local folder. Installed libraries have Update, Remove and
+Documentation actions; their source is read-only under Libraries. Project drafts
+retain exact dependency locks, and source packages and assets are cached in
+IndexedDB. Use Ctrl+. on a missing library import to open the same picker.
+
+
 ## Embed the editor
 
 The `editor/` library depends on [dynlex-ui](https://github.com/OpenAEC-Foundation/dynlex-ui). Mount the two packages next to each other. Import `editor/control.dl` for a bare code editor, `editor/source_panes.dl` for a pane with navigation and Find/Replace, or `editor/source_tools.dl` for the workspace and language-service controller. See the [editor API](docs/editor.md).

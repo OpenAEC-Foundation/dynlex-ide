@@ -85,6 +85,11 @@ to get [read UI source tools] {a pointer:context} [in] {a pointer to UI view:vie
         if ((the UI source tools tools are current) = false) or (((tools's mode != 3) and (tools's mode != 6)) and (tools's position != view's selection's caret)):
             dismiss UI source tools tools
     set command to ((view's modifiers bitwise and 10) != 0) and ((view's modifiers bitwise and 4) = 0)
+    if command and (view's key press = 46):
+        if editable:
+            request UI source fixes in tools
+            return true
+        return false
     if command and (view's key press = 32):
         if editable:
             request UI source completions in tools

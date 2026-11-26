@@ -1,4 +1,5 @@
 import project.dl
+import libraries.dl
 
 to get [the Studio project storage key for] {integer:mode}:
     return (the string form of "dynlex-studio-shader-project") if (mode = 1), else (the string form of "dynlex-studio-program-project")
@@ -22,9 +23,30 @@ to get [the Studio storage reply to] {a pointer to JSON value:payload} [in] {a p
     return parsed's value
 
 to get [the Studio project snapshot of] {a pointer to UI source project:project}:
-    return a JSON object containing [JSON text "entry" is (project's entry's filename), JSON child "files" is (the UI source files of project)]
+    set files to the UI application files of project
+    return a JSON object containing [JSON number "schema" is 1.0, JSON text "entry" is (project's entry's filename), JSON child "files" is files, JSON child "dependencies" is (a copy of JSON node (project's dependencies))]
+
+# Upgrade persisted projects at their storage boundary, before normal loading.
+to [migrate Studio project snapshot] {a pointer to JSON value:snapshot}:
+    if snapshot's kind != the JSON object kind:
+        return nothing
+    if snapshot lacks JSON member named "schema":
+        set JSON member (JSON number "schema" is 1.0) in snapshot
+        set JSON member (JSON child "dependencies" is (an empty UI library configuration)) in snapshot
 
 to get [valid Studio project snapshot] {a pointer to JSON value:snapshot}:
+    if snapshot's kind != the JSON object kind:
+        return false
+    if (JSON field "schema" in snapshot has kind the JSON number kind) = false:
+        return false
+    if ((the JSON number named "schema" in snapshot) != 1.0) or ((JSON field "dependencies" in snapshot has kind the JSON object kind) = false):
+        return false
+    set dependencies to the JSON member named "dependencies" in snapshot
+    if ((JSON field "manifest" in dependencies has kind the JSON object kind) = false) or ((JSON field "lock" in dependencies has kind the JSON object kind) = false):
+        return false
+    set lock to the JSON member named "lock" in dependencies
+    if ((JSON field "packages" in lock has kind the JSON object kind) = false) or ((JSON field "dependencies" in lock has kind the JSON object kind) = false):
+        return false
     if ((JSON field "entry" in snapshot has kind the JSON text kind) = false) or ((JSON field "files" in snapshot has kind the JSON object kind) = false):
         return false
     set files to the JSON member named "files" in snapshot
@@ -55,6 +77,12 @@ to [load Studio snapshot] {a pointer to JSON value:snapshot} [in] {a pointer to 
         set member to the item at index in (files's members)
         if member's name != entry:
             ignore add Studio file (member's name) containing (member's value's text) to editor
+    set {empty sources} to a new JSON-RPC object
+    apply Studio library configuration (the JSON member named "dependencies" in snapshot) with sources empty sources to project in state
+    free empty sources
+    set locked to the JSON member named "packages" in (the JSON member named "lock" in (project's dependencies))
+    if locked's length > 0:
+        queue Studio library restore for project in state
 
 to get [restore Studio project for mode] {integer:mode} [from storage in] {a pointer to website state:state}:
     set editor to the Studio editor for mode mode in state
@@ -68,9 +96,13 @@ to get [restore Studio project for mode] {integer:mode} [from storage in] {a poi
         if stored's kind = the JSON text kind:
             parse (stored's text) as JSON and set parsed to it
             if parsed succeeded:
+                migrate Studio project snapshot (parsed's value)
                 set restored to valid Studio project snapshot (parsed's value)
                 if restored:
                     load Studio snapshot (parsed's value) in editor in state
+                    set migrated to the Studio storage reply to (a JSON object containing [JSON text "action" is "set", JSON text "key" is key, JSON text "value" is (the compact JSON form of (parsed's value))]) in state
+                    if migrated != (0 as a pointer to JSON value):
+                        free migrated
                 free parsed's value
         if restored = false:
             report Studio storage failure (the string form of "Invalid stored project") in state
@@ -88,6 +120,7 @@ to [open saved Studio projects in] {a pointer to website state:state}:
         set editor to the Studio editor for mode mode in state
         store (editor's document's project's revision) into (browser's saved revisions) at mode
     display Studio files in state
+    present installed Studio libraries in state
 
 to [save changed Studio projects in] {a pointer to website state:state}:
     set browser to the address of (state's studio files)
@@ -109,6 +142,7 @@ to [attach the Studio file browser in] {a pointer to website state:state}:
     set browser to the address of (state's studio files)
     set browser's expanded to a new JSON-RPC object
     set browser's rows to a new JSON-RPC array
+    set the value of "Library picker" in (state's view's instance) to -1
     ignore a UI overlay in (state's view) with context (state as a pointer) handling input ((the function named "read Studio file tree $ in $") as a pointer) painting (0 as a pointer) closing (0 as a pointer)
 
 to [close the Studio file browser in] {a pointer to website state:state}:
@@ -117,6 +151,8 @@ to [close the Studio file browser in] {a pointer to website state:state}:
     free browser's expanded
     if browser's libraries != (0 as a pointer to JSON value):
         free browser's libraries
+    if browser's catalog != (0 as a pointer to JSON value):
+        free browser's catalog
 
 # Ordinary projects and individual shared examples retain independent drafts.
 to get [switch Studio project for mode] {integer:mode} [to session] {string:signature} [in] {a pointer to website state:state}:
@@ -132,6 +168,18 @@ to get [switch Studio project for mode] {integer:mode} [to session] {string:sign
     save changed Studio projects in state
     set editor to the Studio editor for mode mode in state
     set project to editor's document's project
+    if (browser's library request != 0) and (browser's library target = project):
+        ignore cancel website request (browser's library request) in state
+        set browser's library request to 0
+        set Studio library actions enabled true in state
+    loop slot from 0 to 2:
+        if (the item at slot in (browser's library restores)) = project:
+            store (0 as a pointer to UI source project) into (browser's library restores) at slot
+    set {empty configuration} to an empty UI library configuration
+    set {empty sources} to a new JSON-RPC object
+    apply Studio library configuration empty configuration with sources empty sources to project in state
+    free empty configuration
+    free empty sources
     if (mode = 1) and (state's shader editor's source request != 0):
         ignore cancel website request (state's shader editor's source request) in state
         set state's shader editor's source request to 0
@@ -147,4 +195,5 @@ to get [switch Studio project for mode] {integer:mode} [to session] {string:sign
     store key into (browser's storage keys) at mode
     set restored to restore Studio project for mode mode from storage in state
     store (project's revision) into (browser's saved revisions) at mode
+    advance Studio library restores in state
     return restored

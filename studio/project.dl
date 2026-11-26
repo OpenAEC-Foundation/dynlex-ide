@@ -82,7 +82,9 @@ to [open Studio tree row] {integer:index} [in] {a pointer to website state:state
     set uri to the project URI for path under root
     set document to the UI source document at uri in project
     if document = (0 as a pointer to UI source document):
-        if key has "l:" at offset 0:
+        if key has "d:" at offset 0:
+            set document to a UI source document named path at uri containing (the JSON text named path in (project's libraries)) in project
+        else if key has "l:" at offset 0:
             set leaf to the filename of path using the POSIX path style
             set document to a UI source document named (leaf's value) at uri containing (the JSON text named path in (browser's libraries)) in project
         else:

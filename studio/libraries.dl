@@ -1,0 +1,241 @@
+import configuration.dl
+import lib/text.dl
+
+to [present installed Studio libraries in] {a pointer to website state:state}:
+    set project to (the website source editor in state)'s document's project
+    set installed to the JSON member named "dependencies" in (the JSON member named "lock" in (project's dependencies))
+    set options to an empty list of UI option
+    loop index from 0 to (installed's length):
+        set alias to (the item at index in (installed's members))'s name
+        append (a UI option named alias displaying alias enabled true) to options
+    set selected to the string form of ""
+    if options's length > 0:
+        set selected to (the item at 0 in options)'s id
+    set the choices of "Installed library" in (state's view's instance) to (a sequence copying options) choosing selected
+    free options
+    set Studio library actions enabled (state's studio files' library request = 0) in state
+
+to [filter Studio libraries in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    if browser's catalog = (0 as a pointer to JSON value):
+        return nothing
+    set instance to state's view's instance
+    set query to the lowercase form of ((the UI value for (the control labeled "Search libraries" in instance) in instance)'s text)
+    set options to an empty list of UI option
+    loop index from 0 to (browser's catalog's length):
+        set entry to the JSON value at index index in (browser's catalog)
+        set title to the JSON text named "title" in entry
+        set publisher to the JSON text named "publisher" in entry
+        if (the lowercase form of (title + " " + publisher)) contains query:
+            append (a UI option named (the JSON text named "name" in entry) displaying (title + " — " + publisher) enabled true) to options
+    set selected to the string form of ""
+    if options's length > 0:
+        set selected to (the item at 0 in options)'s id
+    loop index from 0 to (browser's catalog's length):
+        set entry to the JSON value at index index in (browser's catalog)
+        if (the JSON text named "alias" in entry) = browser's library preferred alias:
+            set selected to the JSON text named "name" in entry
+    set the choices of "Available library" in instance to (a sequence copying options) choosing selected
+    free options
+    select Studio library in state
+    if browser's library preferred alias != "":
+        set the text of "Import library as" in instance to (browser's library preferred alias)
+    set browser's library preferred alias to ""
+    set Studio library actions enabled (browser's library request = 0) in state
+
+to get [the selected Studio catalog entry in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    set name to the selected choice of "Available library" in (state's view's instance)
+    if browser's catalog != (0 as a pointer to JSON value):
+        loop index from 0 to (browser's catalog's length):
+            set entry to the JSON value at index index in (browser's catalog)
+            if (the JSON text named "name" in entry) = name:
+                return entry
+    return 0 as a pointer to JSON value
+
+to [select Studio library in] {a pointer to website state:state}:
+    set entry to the selected Studio catalog entry in state
+    if entry != (0 as a pointer to JSON value):
+        set the text of "Library description" in (state's view's instance) to (the JSON text named "description" in entry)
+        set the text of "Import library as" in (state's view's instance) to (the JSON text named "alias" in entry)
+
+to [request Studio library operation] {string:operation} [with] {a pointer to JSON value:fields} [for] {a pointer to UI source project:project} [in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    require condition (browser's library request = 0) reporting "A Studio library operation is already active"
+    set browser's library target to project
+    set JSON member (JSON text "operation" is operation) in fields
+    set JSON member (JSON child "project" is (a copy of JSON node (project's dependencies))) in fields
+    set paths to a JSON array containing [(a new JSON-RPC text for (project's entry's filename))]
+    loop index from 0 to (project's files' length):
+        add (a new JSON-RPC text for ((the item at index in (project's files' members))'s name)) to the JSON array paths
+    set JSON member (JSON child "paths" is paths) in fields
+    request "libraries" containing fields for purpose 28 indexed 0 in state
+    set browser's library request to state's requests' id
+    set Studio library actions enabled false in state
+    set the text of "Library status" in (state's view's instance) to "Working…"
+
+to [fail Studio library installation in] {a pointer to website state:state}:
+    set state's studio files' library request to 0
+    set Studio library actions enabled true in state
+    set the text of "Library status" in (state's view's instance) to "An error occurred. Check the log."
+    advance Studio library restores in state
+
+to [queue Studio library restore for] {a pointer to UI source project:project} [in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    loop index from 0 to 2:
+        if (the item at index in (browser's library restores)) = (0 as a pointer to UI source project):
+            store project into (browser's library restores) at index
+            advance Studio library restores in state
+            return nothing
+    require condition false reporting "The Studio restore queue is full"
+
+to [advance Studio library restores in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    if browser's library request != 0:
+        return nothing
+    loop index from 0 to 2:
+        set project to the item at index in (browser's library restores)
+        if project != (0 as a pointer to UI source project):
+            store (0 as a pointer to UI source project) into (browser's library restores) at index
+            request Studio library operation "restore" with (a new JSON-RPC object) for project in state
+            return nothing
+
+to [receive Studio library operation] {a pointer to JSON value:response} [in] {a pointer to website state:state}:
+    set browser to the address of (state's studio files)
+    set browser's library request to 0
+    set Studio library actions enabled true in state
+    if response has JSON member named "cancelled":
+        set the text of "Library status" in (state's view's instance) to "Cancelled."
+        advance Studio library restores in state
+        return nothing
+    if response has JSON member named "libraries":
+        if browser's catalog != (0 as a pointer to JSON value):
+            free browser's catalog
+        set browser's catalog to a copy of JSON node (the JSON member named "libraries" in response)
+        filter Studio libraries in state
+    else if response has JSON member named "documentation":
+        request "open" containing (a JSON object containing [JSON text "url" is (the JSON text named "documentation" in response), JSON flag "newTab" is true]) for purpose 0 indexed 0 in state
+    else:
+        set project to browser's library target
+        apply Studio library configuration (the JSON member named "project" in response) with sources (the JSON member named "sources" in response) to project in state
+        set browser's generation to -1
+        present installed Studio libraries in state
+        display Studio files in state
+        save changed Studio projects in state
+    set the text of "Library status" in (state's view's instance) to "Ready."
+    advance Studio library restores in state
+    animate UI view (state's view)
+
+to [set Studio library actions enabled] {boolean:enabled} [in] {a pointer to website state:state}:
+    set labels to ["＋ Add Library", "Add selected library", "Add from URL", "Browse local folder…", "Update library", "Remove library", "Library documentation"]
+    for each label in labels:
+        set the label control in (state's view's instance) enabled enabled
+    if enabled:
+        set chosen to (the selected choice of "Installed library" in (state's view's instance)) != ""
+        set management to ["Update library", "Remove library", "Library documentation"]
+        for each label in management:
+            set the label control in (state's view's instance) enabled chosen
+        set the "Add selected library" control in (state's view's instance) enabled ((the selected choice of "Available library" in (state's view's instance)) != "")
+
+to [apply Studio library configuration] {a pointer to JSON value:configuration} [with sources] {a pointer to JSON value:sources} [to] {a pointer to UI source project:project} [in] {a pointer to website state:state}:
+    set {next configuration} to a copy of JSON node configuration
+    set {next sources} to a copy of JSON node sources
+    free project's dependencies
+    free project's libraries
+    set project's dependencies to next configuration
+    set project's libraries to next sources
+    set location to the path from (state's language's client's root) interpreted as a file URI using the POSIX path style
+    require condition (location's success) reporting "The Studio project root has an invalid URI"
+    set root to location's value + "/"
+    set prefix to state's language's client's root + "/.dynlex/packages/"
+    set document to project's documents
+    loop while document != (0 as a pointer to UI source document):
+        if (document's writable = false) and (document's uri has prefix at offset 0):
+            set location to the path from (document's uri) interpreted as a file URI using the POSIX path style
+            require condition (location's success) reporting "A Studio library document has an invalid URI"
+            set path to the substring of (location's value) from (root's length) spanning (location's value's length - root's length) bytes
+            set document's available to project's libraries has JSON member named path
+            if document's available:
+                set document's source to the JSON text named path in (project's libraries)
+            increment document's revision
+        set document to document's next
+    increment project's file generation
+    refresh the context of UI source project project
+    invalidate UI source project project
+
+to get [follow Studio library action] {string:action} [in] {a pointer to website state:state}:
+    if action = "action:close-library-picker":
+        set the value of "Library picker" in (state's view's instance) to -1
+        return true
+    if (action has "action:" at offset 0) = false:
+        return false
+    set operations to ["action:add-library", "action:install-library", "action:library-url", "action:library-folder", "action:update-library", "action:remove-library", "action:library-documentation"]
+    set recognized to false
+    for each candidate in operations:
+        if action = candidate:
+            set recognized to true
+    if recognized = false:
+        return false
+    if state's studio files' library request != 0:
+        return true
+    set instance to state's view's instance
+    set project to (the website source editor in state)'s document's project
+    set fields to a new JSON-RPC object
+    if action = "action:add-library":
+        set the value of "Studio inspector" in instance to 0
+        set the value of "Library picker" in instance to 0
+        if state's studio files' library preferred alias != "":
+            set the text of "Search libraries" in instance to ""
+        request Studio library operation "catalog" with fields for project in state
+        return true
+    set alias to (the UI value for (the control labeled "Import library as" in instance) in instance)'s text
+    set operation to the string form of "add"
+    if action = "action:install-library":
+        set entry to the selected Studio catalog entry in state
+        if entry = (0 as a pointer to JSON value):
+            free fields
+            set the text of "Library status" in instance to "Choose a library first."
+            return true
+        set JSON member (JSON child "source" is (a JSON object containing [JSON text "catalog" is (the JSON text named "name" in entry)])) in fields
+    else if action = "action:library-url":
+        set url to (the UI value for (the control labeled "Library source URL" in instance) in instance)'s text
+        if url = "":
+            free fields
+            set the text of "Library status" in instance to "Enter a repository or SDK archive URL."
+            return true
+        set JSON member (JSON text "url" is url) in fields
+    else if action = "action:library-folder":
+        set operation to "folder"
+    else:
+        set alias to the selected choice of "Installed library" in instance
+        if alias = "":
+            free fields
+            set the text of "Library status" in instance to "Choose an installed library first."
+            return true
+        if action = "action:library-documentation":
+            set JSON member (JSON text "alias" is alias) in fields
+            request Studio library operation "documentation" with fields for project in state
+            return true
+        set operation to (the string form of "update") if (action = "action:update-library"), else (the string form of "remove")
+    set JSON member (JSON text "alias" is alias) in fields
+    if alias = "":
+        free fields
+        set the text of "Library status" in instance to "Enter an import name for the library."
+        return true
+    request Studio library operation operation with fields for project in state
+    return true
+
+to [notice Studio library search] {a pointer to UI instance:instance}:
+    filter Studio libraries in (the website state in instance)
+
+to [notice Studio library selection] {a pointer to UI instance:instance}:
+    select Studio library in (the website state in instance)
+
+to get [handle Studio source command] {a pointer to JSON value:command} [in] {a pointer to UI source tools:tools}:
+    if (the JSON text named "command" in command) != "dynlex.addLibrary":
+        return false
+    set state to the website state in (tools's view's instance)
+    set arguments to the JSON member named "arguments" in command
+    set state's studio files' library preferred alias to (the JSON value at index 0 in arguments)'s text
+    ignore follow Studio library action (the string form of "action:add-library") in state
+    return true

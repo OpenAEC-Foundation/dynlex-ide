@@ -1,0 +1,1 @@
+Installed libraries share compiler and language snapshots while remaining separate from application files.

@@ -55,6 +55,18 @@ receive UI language diagnostics response in client
 free response
 require condition (helper's diagnostics' length = 1) reporting "Closing an imported model erased its diagnostics."
 
+# Undo can restore the server's exact text before a debounced edit is sent.
+# That no-op version update emits no diagnostics; keep the prior report set.
+set client's model to the UI language model for main in client
+set client's opened to true
+set client's snapshot to "import helper.dl"
+edit UI source document main to (the string form of "import helper.dl") at 2.0 seconds
+set work to the UI language source change in client
+free work's payload
+finish UI source reports for (main's project)
+require condition ((helper's diagnostics' length = 1) and (pending's diagnostics' length = 1)) reporting "Undo to the analyzed text discarded diagnostics without a replacement report."
+require condition (helper's diagnostic project revision = main's project's revision) reporting "Undo did not advance the retained report's project snapshot."
+
 # A full clean analysis commits empty reports even for imports the server never
 # named in its new notification batch. Old cached problems must disappear.
 begin UI source reports for (main's project)

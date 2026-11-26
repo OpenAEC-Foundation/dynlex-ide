@@ -127,11 +127,14 @@ to [apply the UI source report to] {a pointer to UI source document:document}:
     set document's diagnostic revision to document's revision
     set document's diagnostic project revision to project's report revision
 
+to [renew UI source reports for] {a pointer to UI source project:project}:
+    set project's report revision to project's revision
+    set project's reports complete to false
+
 to [begin UI source reports for] {a pointer to UI source project:project}:
     free project's reports
     set project's reports to a new JSON-RPC object
-    set project's report revision to project's revision
-    set project's reports complete to false
+    renew UI source reports for project
 
 to [retain UI source diagnostics] {a pointer to JSON value:diagnostics} [at] {string:uri} [in] {a pointer to UI source project:project}:
     require condition (project's report revision = project's revision) reporting "Source diagnostics arrived without their project analysis snapshot"

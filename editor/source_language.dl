@@ -49,11 +49,18 @@ to get [the UI language token request in] {a pointer to UI language client:clien
 
 to get [the UI language source change in] {a pointer to UI language client:client}:
     set document to client's document
-    set client's snapshot to document's prefix + document's source
+    set source to document's prefix + document's source
+    set changed to client's snapshot != source
+    set client's snapshot to source
     set client's revision to document's revision
     set client's project revision to document's project's revision
     increment client's version
-    begin UI source reports for (document's project)
+    if changed:
+        begin UI source reports for (document's project)
+    else:
+        # An edit followed by Undo may advance the version without changing
+        # the server's text. It does not publish a replacement diagnostic set.
+        renew UI source reports for (document's project)
     set parameters to the LSP document change parameters for (client's uri) at (client's version) containing (a full LSP content change containing (client's snapshot))
     return UI language message "textDocument/didChange" with parameters requesting false at step 5 in client
 

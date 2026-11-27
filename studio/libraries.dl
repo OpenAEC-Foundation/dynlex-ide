@@ -9,6 +9,7 @@ to [present installed Studio libraries in] {a pointer to website state:state}:
     loop index from 0 to (installed's length):
         set alias to (the item at index in (installed's members))'s name
         append (a UI option named alias displaying alias enabled true) to options
+    set the value of "Installed project libraries" in (state's view's instance) to (0 if (installed's length > 0), else -1)
     set selected to the string form of ""
     if options's length > 0:
         set selected to (the item at 0 in options)'s id

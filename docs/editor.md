@@ -160,7 +160,8 @@ the source set.
 The visible editor sends minimal UTF-16 range edits and versioned
 `dynlex/activeCursorChanged` notifications. Single-line drafts retain the last
 committed semantic context until the caret leaves the line or editing focus
-leaves the source. Completion and lexical highlighting still use the live draft.
+leaves the source. Completion and lexical highlighting still use the live draft. Existing colors
+outside the replacement range stay visible while language replies are in flight.
 Newlines and edits spanning multiple lines commit immediately. Moving within a
 line sends no additional cursor notification. Imported writable documents use the
 same connection and line locks; typing does not replace their project transport.

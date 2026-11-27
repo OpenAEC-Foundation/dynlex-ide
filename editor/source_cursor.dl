@@ -24,6 +24,29 @@ to get {a pointer to UI language client:client} [needs UI language cursor work]:
         return true
     return (model's document != client's cursor document) or (client's sent cursor line != client's cursor line)
 
+# A new line must be locked before its first edit. Flush edits on the old
+# locked line first, so rapid typing followed by navigation still commits them.
+to get {a pointer to UI language client:client} [needs UI language cursor before edits]:
+    if ((client needs UI language cursor work) = false) or (client's cursor document = @intrinsic("construct", a pointer to UI source document)):
+        return false
+    set active to the UI language model for (client's cursor document) in client
+    if active's opened = false:
+        return false
+    set previous to client's cursor model
+    if previous != @intrinsic("construct", a pointer to UI language document):
+        set source to previous's document's prefix + previous's document's source
+        if previous's snapshot != source:
+            set edit to the UI source replacement from (previous's snapshot) to source
+            set start to the UI language position at byte (edit's start) in (previous's snapshot)
+            set end to the UI language position at byte (edit's end) in (previous's snapshot)
+            set row to (the JSON number named "line" in start) as an integer
+            set pending to (row = client's sent cursor line) or ((the JSON number named "line" in end) != (row as a floating-point number))
+            free start
+            free end
+            if pending:
+                return false
+    return true
+
 to get [the UI language cursor parameters in] {a pointer to UI language client:client}:
     set parameters to a JSON object containing [JSON text "clientId" is (client's root)]
     set document to client's cursor document

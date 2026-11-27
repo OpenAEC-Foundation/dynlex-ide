@@ -2,6 +2,7 @@
 # configure project metadata and supply the language transport.
 import control.dl
 import source_language.dl
+import source_draft_colors.dl
 import source_annotations.dl
 import ../../dynlex-ui/ui/tabs.dl
 import ../../dynlex-ui/ui/view.dl
@@ -117,6 +118,7 @@ to [synchronize UI source workspace] {a pointer to UI source workspace:workspace
         set source to (the UI value for (entry's node) in (workspace's instance))'s text
         if entry's document's writable:
             edit UI source document (entry's document) to source at seconds seconds
+            retain UI source draft colors in (entry's node) in (workspace's instance)
         else:
             set UI text of (entry's node) in (workspace's instance) to (entry's document's source)
         set entry to entry's next

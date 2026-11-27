@@ -1,0 +1,37 @@
+# Keep unchanged source spans visible while the language reply is in flight.
+import source_changes.dl
+import ../../dynlex-ui/ui/text_colors.dl
+
+to [retain UI source draft colors in] {UI reference:node} [in] {a pointer to UI instance:instance}:
+    set value to the UI value for node in instance
+    if value's colored text = value's text:
+        return nothing
+    if value's colors = @intrinsic("construct", a pointer to UI text color span):
+        set value's colored text to value's text
+        return nothing
+    set edit to the UI source replacement from (value's colored text) to (value's text)
+    set shift to edit's text's length - (edit's end - edit's start)
+    set previous to @intrinsic("construct", a pointer to UI text color span)
+    set span to value's colors
+    loop while span != @intrinsic("construct", a pointer to UI text color span):
+        set next to span's next
+        set keep to span's end <= edit's start
+        if span's start >= edit's end:
+            set span's start to span's start + shift
+            set span's end to span's end + shift
+            set keep to true
+        if keep:
+            if previous = @intrinsic("construct", a pointer to UI text color span):
+                set value's colors to span
+            else:
+                set previous's next to span
+            set previous to span
+        else:
+            deallocate span
+        set span to next
+    set value's last color to previous
+    if previous = @intrinsic("construct", a pointer to UI text color span):
+        set value's colors to previous
+    else:
+        set previous's next to @intrinsic("construct", a pointer to UI text color span)
+    set value's colored text to value's text

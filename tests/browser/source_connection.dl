@@ -91,6 +91,19 @@ clear the UI language cursor in client
 analyze source test document main in client
 require condition (main's diagnostics' length = 0) reporting "Leaving the editor did not commit a repaired line"
 
+# Moving and typing in one frame must lock the new line before sending its edit.
+set the UI language cursor in client to main at byte 0
+analyze source test document main in client
+set the UI language cursor in client to main at byte caret
+edit UI source document main to (lead + "echo )") at 4.1 seconds
+analyze source test document main in client
+require condition (main's diagnostics' length = 0) reporting "A new line's edit overtook its cursor lock"
+clear the UI language cursor in client
+analyze source test document main in client
+require condition (main's diagnostics' length > 0) reporting "The immediately typed draft was not committed on blur"
+edit UI source document main to committed at 4.2 seconds
+analyze source test document main in client
+
 # Imported writable files use the same connection and committed-line protocol.
 set helper's writable to true
 set caret to imported's length - 7

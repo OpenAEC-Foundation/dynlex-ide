@@ -101,10 +101,8 @@ to get [the next UI language work for] {a pointer to UI language client:client} 
     set client's model to root
     if root's opened = false:
         return the UI language opening in client
-    if (client's cursor model = @intrinsic("construct", a pointer to UI language document)) and (client's cursor document != @intrinsic("construct", a pointer to UI source document)):
-        set active to the UI language model for (client's cursor document) in client
-        if active's opened:
-            return UI language message "dynlex/activeCursorChanged" with (the UI language cursor parameters in client) requesting false at step 14 in client
+    if client needs UI language cursor before edits:
+        return UI language message "dynlex/activeCursorChanged" with (the UI language cursor parameters in client) requesting false at step 14 in client
     if ((root has current UI model text) = false) or (root's project revision != main's project's revision):
         return the UI language source change in client
     # Flush drafts in previously viewed imports before moving their line lock.

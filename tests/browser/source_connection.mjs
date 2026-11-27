@@ -63,11 +63,11 @@ try {
     assert.match(JSON.stringify(hovers[3]),/a pointer to a byte/i,'An unfinished draft replaced imported inference');
     assert.equal(hovers[2].contents.value, 'type:\n\n```dynlex\na pointer to a byte\n```\n\nvalue: ```"a`b``c"```');
     const changes=messages.filter(entry=>entry.payload.message.method==='textDocument/didChange');
-    assert.deepEqual(changes.map(entry=>entry.payload.message.params.textDocument.uri),['file:///workspace/main.dl','file:///workspace/main.dl','file:///workspace/main.dl','file:///workspace/main.dl',
-      'file:///workspace/main.dl','file:///workspace/helper.dl']);
+    assert.deepEqual(changes.map(entry=>entry.payload.message.params.textDocument.uri),[
+      ...Array(7).fill('file:///workspace/main.dl'),'file:///workspace/helper.dl']);
     assert(changes.every(entry=>entry.payload.message.params.contentChanges.every(change=>change.range)),
       'Normal source changes must carry precise UTF-16 ranges');
-    for(const change of [changes[2],changes[3],changes.at(-1)])
+    for(const change of [changes[2],changes[3],changes[4],changes.at(-1)])
       assert(!change.response.some(message=>message.method==='textDocument/publishDiagnostics'),
         'Editing a locked line recompiled the project');
     const cursors=messages.filter(entry=>entry.payload.message.method==='dynlex/activeCursorChanged');

@@ -1,0 +1,1 @@
+Draft edits preserve and shift unaffected colors without retaining edited spans.

@@ -157,6 +157,14 @@ source and refreshes dependent semantics without sending a text change for an
 unchanged import. Leaving the project closes every open model before replacing
 the source set.
 
+The visible editor sends minimal UTF-16 range edits and versioned
+`dynlex/activeCursorChanged` notifications. Single-line drafts retain the last
+committed semantic context until the caret leaves the line or editing focus
+leaves the source. Completion and lexical highlighting still use the live draft.
+Newlines and edits spanning multiple lines commit immediately. Moving within a
+line sends no additional cursor notification. Imported writable documents use the
+same connection and line locks; typing does not replace their project transport.
+
 Diagnostics belong to the project analysis snapshot. Reports are retained by URI,
 including sources whose views have not been created. The main semantic-token
 response is the ordered completion barrier for its analysis; committing that
@@ -165,8 +173,9 @@ the retained report. Closed and superseded project replies do not overwrite it.
 Changed reports advance a presentation generation independently of source edits;
 identical reports preserve it.
 
-During an update, call `the next UI source workspace work in workspace focused on
-(the UI source focus in view for workspace) at (view's seconds) seconds`. A nonzero
+During an update, call `the next visible UI source work in workspace in view at
+(view's seconds) seconds`. It synchronizes source text and editing focus before
+scheduling work, including cursor-only line commits and focus loss. A nonzero
 `step` owns a JSON `payload` to send through the language transport. Deliver its
 reply to `the UI language reply response at step step in (workspace's client)`;
 that returns the next work item. Synchronize the workspace before delivering

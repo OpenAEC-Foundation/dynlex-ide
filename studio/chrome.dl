@@ -23,6 +23,7 @@ the Studio command aliases means: [
     @intrinsic("construct", Studio command alias, "Explorer New", "Create file command"),
     @intrinsic("construct", Studio command alias, "Explorer Rename", "Rename file command"),
     @intrinsic("construct", Studio command alias, "Explorer Delete", "Delete file command"),
+    @intrinsic("construct", Studio command alias, "Add library command", "＋ Add Library"),
     @intrinsic("construct", Studio command alias, "Console Copy", "Copy output"),
     @intrinsic("construct", Studio command alias, "Console Clear", "Clear output")
 ]

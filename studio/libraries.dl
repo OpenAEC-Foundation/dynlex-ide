@@ -1,4 +1,5 @@
 import configuration.dl
+import programs.dl
 import lib/text.dl
 
 to [present installed Studio libraries in] {a pointer to website state:state}:
@@ -138,6 +139,9 @@ to [set Studio library actions enabled] {boolean:enabled} [in] {a pointer to web
         set the "Add selected library" control in (state's view's instance) enabled ((the selected choice of "Available library" in (state's view's instance)) != "")
 
 to [apply Studio library configuration] {a pointer to JSON value:configuration} [with sources] {a pointer to JSON value:sources} [to] {a pointer to UI source project:project} [in] {a pointer to website state:state}:
+    set program project to (the UI source editor labeled "IDE source" in (state's language))'s document's project
+    if (state's studio debug's active) and (project = program project):
+        stop website program 2 in state
     set {next configuration} to a copy of JSON node configuration
     set {next sources} to a copy of JSON node sources
     free project's dependencies

@@ -9,7 +9,7 @@ import tempfile
 
 from export_sdk import ROOT, export
 
-HOST_REVISION = 'da5b19bcde8691c282ac7cd0c9671f40b80d625d'
+HOST_REVISION = '3235f3881c78a3e6154a06bfbb00b22435ce1ae4'
 HOST_REPOSITORY = 'https://github.com/OpenAEC-Foundation/dynlex-website.git'
 
 

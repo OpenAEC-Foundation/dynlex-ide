@@ -114,7 +114,7 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                                         command link "Close library picker" titled "Close library picker" with icon "clear" to "action:close-library-picker" using IDE command appearance
                                 paragraph "Installed libraries label" containing "Installed libraries" using IDE signal appearance
                                 choice field "Installed library" choosing "":
-                                region "Library actions" using IDE toolbar appearance:
+                                command menu "Library actions" titled "Actions" using IDE secondary command appearance:
                                     command link "Update library" titled "Update library" with icon "reset" to "action:update-library" using IDE command appearance
                                     command link "Remove library" titled "Remove library" with icon "delete" to "action:remove-library" using IDE command appearance
                                     command link "Library documentation" titled "Library documentation" with icon "docs" to "action:library-documentation" using IDE command appearance

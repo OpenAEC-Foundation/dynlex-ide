@@ -1,0 +1,77 @@
+import ../../../editor/control.dl
+import ../../../editor/source_workspace.dl
+import ../../../../dynlex-ui/ui/document_layout.dl
+import ../../../../dynlex-ui/ui/layout.dl
+
+# No layout has been painted. Both source controls exist below the viewport.
+document example:
+    editor "First" containing "one\nsecond" using no UI appearance
+    editor "Other" containing "other" using no UI appearance
+
+to [complete empty visibility work] {UI language work:work} [in] {a pointer to UI language client:client}:
+    free work's payload
+    set response to a new JSON-RPC array
+    set next to the UI language reply response at step (work's step) in client
+    require condition (next's step = 0) reporting "A hidden cursor commit queued unrelated work"
+    free response
+
+set instance to an instance of example
+set window to the address of instance
+set workspace to a UI source workspace in window rooted at "file:///workspace"
+set editor to the UI source editor labeled "First" in workspace
+set document to editor's document
+set client to workspace's client
+set view to a new UI view
+set view's instance to window
+set view's layout to a document UI layout for (window's description) inside (window's description)
+set view's paint count to 1
+set work to the next visible UI source work in workspace in (the address of view) at 1.0 seconds
+require condition ((work's step = 0) and (client's phase = 0)) reporting "An offscreen editor started the language service"
+
+# An existing connection still flushes its old line before releasing its lock.
+set client's desired to document
+set work to the UI language project at step 1 in client
+free work's payload
+set work to the UI language opening in client
+free work's payload
+set client's phase to 7
+set document's analyzed revision to document's revision
+set document's analyzed project revision to document's project's revision
+set the UI language cursor in client to document at byte 0
+set work to the next UI language work for client analyzing document at 2.0 seconds
+require condition (work's step = 14) reporting "The visible source did not acquire a line lock"
+complete empty visibility work work in client
+set UI text of (editor's node) in window to "one x\nsecond"
+set work to the next visible UI source work in workspace in (the address of view) at 3.0 seconds
+require condition ((work's step = 5) and (client's document = document)) reporting "Hiding an edited source did not flush its previous line"
+complete empty visibility work work in client
+set work to the next visible UI source work in workspace in (the address of view) at 3.1 seconds
+require condition (work's step = 14) reporting "A hidden source retained its line lock"
+set parameters to the JSON member named "params" in (the JSON member named "message" in (work's payload))
+require condition ((parameters has JSON member named "uri") = false) reporting "A hidden editor locked another source instead of releasing its line"
+complete empty visibility work work in client
+set work to the next visible UI source work in workspace in (the address of view) at 3.2 seconds
+require condition (work's step = 0) reporting "An offscreen editor refreshed tokens after releasing its cursor"
+
+# Configuration changes are deferred as well; release the existing server lock
+# without starting the replacement project while the source is hidden.
+set the UI language cursor in client to document at byte 0
+set work to the next UI language work for client analyzing document at 4.0 seconds
+require condition (work's step = 14) reporting "The retained source did not reacquire its cursor"
+complete empty visibility work work in client
+set files to a new JSON-RPC object
+configure UI source document document named "renamed.dl" at "file:///workspace/renamed.dl" prefixed by "" using UI CPU analysis with files files
+free files
+set work to the next visible UI source work in workspace in (the address of view) at 5.0 seconds
+require condition (work's step = 14) reporting "An offscreen reconfiguration started a replacement language project"
+complete empty visibility work work in client
+set work to the next visible UI source work in workspace in (the address of view) at 5.1 seconds
+require condition (work's step = 0) reporting "A hidden reconfigured source restarted analysis"
+set view's text focus to editor's node
+set work to the next visible UI source work in workspace in (the address of view) at 6.0 seconds
+require condition (work's step = 9) reporting "Focusing the source did not apply its deferred configuration"
+free work's payload
+release UI layout (view's layout)
+free UI source workspace workspace
+close window
+print line "Offscreen sources remain idle while existing cursor locks flush and release."

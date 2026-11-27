@@ -1,0 +1,1 @@
+Offscreen sources remain idle while existing cursor locks flush and release.

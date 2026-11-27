@@ -176,7 +176,9 @@ identical reports preserve it.
 
 During an update, call `the next visible UI source work in workspace in view at
 (view's seconds) seconds`. It synchronizes source text and editing focus before
-scheduling work, including cursor-only line commits and focus loss. A nonzero
+scheduling work, including cursor-only line commits and focus loss. Offscreen
+editors stay idle; an existing cursor lock flushes and releases without starting
+another project. Configuration changes wait until a source is visible again. A nonzero
 `step` owns a JSON `payload` to send through the language transport. Deliver its
 reply to `the UI language reply response at step step in (workspace's client)`;
 that returns the next work item. Synchronize the workspace before delivering

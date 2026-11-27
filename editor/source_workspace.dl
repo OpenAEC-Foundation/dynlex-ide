@@ -271,4 +271,16 @@ to get [the next visible UI source work in] {a pointer to UI source workspace:wo
     if active = false:
         clear the UI language cursor in (workspace's client)
     set focused to the UI source focus in view for workspace
+    if focused = (0 as UI reference):
+        set client to workspace's client
+        set model to client's cursor model
+        if (model = @intrinsic("construct", a pointer to UI language document)) or (client's phase != 7):
+            return a new UI language work
+        synchronize UI source workspace workspace at seconds seconds
+        # Release the old connection's lock; replacement configuration waits
+        # until a source is visible again.
+        if ((client's project context != model's document's project's context) or (model's context != model's document's context)) or (client's profiles != (the compact JSON form of (model's document's project's profiles))):
+            set client's model to model
+            return UI language message "dynlex/activeCursorChanged" with (the UI language cursor parameters in client) requesting false at step 14 in client
+        return the next UI language work for client analyzing (model's document) at seconds seconds
     return the next UI source workspace work in workspace focused on focused at seconds seconds

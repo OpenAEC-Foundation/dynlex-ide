@@ -1,4 +1,5 @@
 import lib/json_builders.dl
+import ../editor/source_query_types.dl
 import ../../dynlex-ui/ui/overlays.dl
 
 class:
@@ -11,6 +12,9 @@ class:
         invocation as an integer
         selected frame as an integer
         query as an integer
+        source query as a pointer to UI source query
+        source generation as an integer
+        source frame as a pointer to JSON value
         snapshot as a pointer to JSON value
         breakpoints as a pointer to JSON value
         children as a pointer to JSON value

@@ -1,5 +1,5 @@
 import programs.dl
-import debug_model.dl
+import debug_sources.dl
 
 to [send Studio debug command] {string:command} [in] {a pointer to website state:state}:
     set session to the address of (state's studio debug)
@@ -7,6 +7,7 @@ to [send Studio debug command] {string:command} [in] {a pointer to website state
         JSON text "command" is command, JSON number "invocation" is (session's invocation), JSON number "pause" is (session's pause)
     ]) for purpose 26 indexed (session's invocation) in state
     if command != "pause":
+        clear pending Studio debug source in state
         if session's query != 0:
             ignore cancel website request (session's query) in state
             set session's query to 0
@@ -78,32 +79,6 @@ to get [follow Studio debug action] {string:action} [in] {a pointer to website s
             send Studio debug command (the string form of command) in state
             return true
     return false
-
-to [show Studio debug location] {a pointer to JSON value:frame} [in] {a pointer to website state:state}:
-    set editor to the UI source editor labeled "IDE source" in (state's language)
-    set project to editor's document's project
-    set uri to the JSON text named "uri" in frame
-    set document to the UI source document at uri in project
-    if document = (0 as a pointer to UI source document):
-        set index to 0
-        loop while index < project's files' length:
-            set file to project's files' members + index
-            if (the project URI for (file's name) under (state's language's client's root)) = uri:
-                set document to a UI source document named (file's name) at uri containing (file's value's text) in project
-            increment index
-    require condition (document != (0 as a pointer to UI source document)) reporting "The paused program refers to a source outside its project"
-    set span to the UI source range of frame in document
-    require condition (span's visible) reporting "The paused program refers to a hidden source range"
-    show UI source document document in editor in (state's view)
-    set editor's current's anchor and editor's current's caret to span's start
-    restore UI source location (editor's current) in editor in (state's view)
-    set state's view's reveal caret to true
-    reveal focused UI content in (state's view)
-    set value to the UI text state for document in editor in (state's view's instance)
-    mark UI text (document's source) in layer "debug execution" at priority 20 in value
-    add UI text mark (UI ink 210 170 70) from (span's start) to (span's end) with opacity 110 in layer "debug execution" in value
-    display Studio files in state
-    animate UI view (state's view)
 
 to [receive Studio debug notification] {a pointer to JSON value:message} [in] {a pointer to website state:state}:
     set session to the address of (state's studio debug)

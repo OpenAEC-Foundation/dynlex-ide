@@ -10,7 +10,18 @@ to [clear Studio debug marks in] {a pointer to website state:state}:
         ignore clear UI text marks in layer "debug execution" in value
         set buffer to buffer's next
 
+to [clear pending Studio debug source in] {a pointer to website state:state}:
+    set session to the address of (state's studio debug)
+    set query to session's source query
+    if query != (0 as a pointer to UI source query):
+        if query's generation = session's source generation:
+            cancel UI source query query
+    set session's source query to 0 as a pointer to UI source query
+    set session's source frame to 0 as a pointer to JSON value
+    set session's source generation to 0
+
 to [clear the Studio pause in] {a pointer to website state:state}:
+    clear pending Studio debug source in state
     set session to the address of (state's studio debug)
     set state's language's tools' runtime values to 0 as a pointer to JSON value
     dismiss UI source hover (the address of (state's language's tools' hover)) in (state's view)

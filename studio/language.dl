@@ -3,7 +3,7 @@ import ../../../games/editors.dl
 import configuration.dl
 import project_storage.dl
 import theme.dl
-import debug_model.dl
+import debug_sources.dl
 import chrome.dl
 import programs.dl
 
@@ -36,6 +36,7 @@ to [advance website language analysis in] {a pointer to website state:state}:
     if (state's studio debug's active) and (state's route != "/ide/index.html"):
         stop website program 2 in state
     set view to state's view
+    update Studio debug source in state
     update UI source tools in (state's language)
     set work to the next visible UI source work in (state's language) in view at (view's seconds) seconds
     send website language work work in state

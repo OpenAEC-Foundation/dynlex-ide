@@ -12,7 +12,7 @@ to [show Studio debug location] {a pointer to JSON value:frame} [in] {a pointer 
     if document = (0 as a pointer to UI source document):
         set session to the address of (state's studio debug)
         set parameters to an LSP text document identifier for uri
-        set session's source query to request UI source feature "dynlex/readDocument" with parameters parameters in (project's entry)
+        set session's source query to request UI source feature "dynlex/readDocument" with parameters parameters in (editor's document)
         free parameters
         set session's source generation to session's source query's generation
         # The paused snapshot owns this frame until the request is cancelled.
@@ -37,7 +37,8 @@ to [update Studio debug source in] {a pointer to website state:state}:
     set query to session's source query
     if query = (0 as a pointer to UI source query):
         return nothing
-    if query's generation != session's source generation:
+    set editor to the UI source editor labeled "IDE source" in (state's language)
+    if (query's generation != session's source generation) or ((query is current for UI source document (editor's document)) = false):
         clear pending Studio debug source in state
         return nothing
     if query's ready = false:
@@ -45,7 +46,7 @@ to [update Studio debug source in] {a pointer to website state:state}:
     require condition (query's result's kind = the JSON text kind) reporting "The paused source is unavailable from the language service"
     set frame to session's source frame
     set uri to the JSON text named "uri" in frame
-    set project to (the UI source editor labeled "IDE source" in (state's language))'s document's project
+    set project to editor's document's project
     set document to the UI source document at uri in project
     if document = (0 as a pointer to UI source document):
         set name to the UI source filename in uri

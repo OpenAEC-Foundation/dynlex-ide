@@ -1,6 +1,7 @@
 # One asynchronous language connection can analyze independent editor projects.
 # Work is protocol data. A platform supplies transport, never editor policy.
 import source_protocol.dl
+import source_cursor.dl
 
 the UI source analysis delay means: 0.18
 
@@ -52,19 +53,16 @@ to get [the UI language token request in] {a pointer to UI language client:clien
 to get [the UI language source change in] {a pointer to UI language client:client}:
     set document to client's document
     set source to document's prefix + document's source
-    set changed to client's snapshot != source
+    set change to the UI language content change from (client's snapshot) to source
     set client's snapshot to source
     set client's revision to document's revision
     set client's project revision to document's project's revision
     increment client's version
     if document = document's project's entry:
-        if changed:
-            begin UI source reports for (document's project)
-        else:
-            # An edit followed by Undo may advance the version without changing
-            # the server's text. It does not publish a replacement diagnostic set.
-            renew UI source reports for (document's project)
-    set parameters to the LSP document change parameters for (client's uri) at (client's version) containing (a full LSP content change containing (client's snapshot))
+        # Uncommitted edits publish no new diagnostics. Existing reports remain
+        # valid until the server publishes the next committed project snapshot.
+        renew UI source reports for (document's project)
+    set parameters to the LSP document change parameters for (client's uri) at (client's version) containing change
     return UI language message "textDocument/didChange" with parameters requesting false at step 5 in client
 
 to get [the next UI language project closing in] {a pointer to UI language client:client}:
@@ -88,9 +86,9 @@ to get [the next UI language work for] {a pointer to UI language client:client} 
     set query to the next pending UI source query in document
     set pending to query != @intrinsic("construct", a pointer to UI source query)
     set main to document's project's entry
-    if (((document needs UI source analysis) = false) and ((main needs UI source analysis) = false)) and (pending = false):
+    if (((document needs UI source analysis) = false) and ((main needs UI source analysis) = false)) and ((pending = false) and ((client needs UI language cursor work) = false)):
         return a new UI language work
-    if (pending = false) and ((document's analyzed revision != document's revision) and (seconds < (document's edited at + (the UI source analysis delay)))):
+    if ((pending = false) and ((client needs UI language cursor work) = false)) and ((document's analyzed revision != document's revision) and (seconds < (document's edited at + (the UI source analysis delay)))):
         return a new UI language work
     if client's phase = 0:
         return the UI language project at step 1 in client
@@ -103,11 +101,22 @@ to get [the next UI language work for] {a pointer to UI language client:client} 
     set client's model to root
     if root's opened = false:
         return the UI language opening in client
+    if (client's cursor model = @intrinsic("construct", a pointer to UI language document)) and (client's cursor document != @intrinsic("construct", a pointer to UI source document)):
+        set active to the UI language model for (client's cursor document) in client
+        if active's opened:
+            return UI language message "dynlex/activeCursorChanged" with (the UI language cursor parameters in client) requesting false at step 14 in client
     if ((root has current UI model text) = false) or (root's project revision != main's project's revision):
         return the UI language source change in client
-    if main needs UI source analysis:
-        return the UI language token request in client
+    # Flush drafts in previously viewed imports before moving their line lock.
+    set candidate to client's models
+    loop while candidate != @intrinsic("construct", a pointer to UI language document):
+        if (candidate's opened) and ((candidate has current UI model text) = false):
+            set client's model to candidate
+            return the UI language source change in client
+        set candidate to candidate's next
     if document's available = false:
+        if client needs UI language cursor work:
+            return UI language message "dynlex/activeCursorChanged" with (the UI language cursor parameters in client) requesting false at step 14 in client
         return a new UI language work
     set model to the UI language model for document in client
     set client's model to model
@@ -115,9 +124,16 @@ to get [the next UI language work for] {a pointer to UI language client:client} 
         return the UI language opening in client
     if (model has current UI model text) = false:
         return the UI language source change in client
+    if client needs UI language cursor work:
+        set client's model to root
+        return UI language message "dynlex/activeCursorChanged" with (the UI language cursor parameters in client) requesting false at step 14 in client
+    if main needs UI source analysis:
+        set client's model to root
+        return the UI language token request in client
     if document needs UI source analysis:
         return the UI language token request in client
-    require condition pending reporting "An editor feature has no pending request"
+    if pending = false:
+        return a new UI language work
     if (@intrinsic("equal", query's parameters factory, 0 as a pointer)) = false:
         @intrinsic("call pointer", query's parameters factory, nothing, query, document)
     set client's query to query
@@ -162,7 +178,13 @@ to get [advance UI language reply] {a pointer to JSON value:response} [at step] 
         return UI language message "initialized" with (a new JSON-RPC object) requesting false at step 3 in client
     if (step = 3) or (step = 10):
         return the UI language opening in client
+    if step = 14:
+        set client's phase to 7
+        return a new UI language work
     if (step = 4) or (step = 5):
+        if (client's cursor document != @intrinsic("construct", a pointer to UI source document)) or (client's cursor model != @intrinsic("construct", a pointer to UI language document)):
+            set client's phase to 7
+            return a new UI language work
         return the UI language token request in client
     if step = 6:
         set tokens to the UI language result numbered 6 in response

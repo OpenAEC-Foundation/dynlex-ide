@@ -126,12 +126,14 @@ to get [the next UI source workspace work in] {a pointer to UI source workspace:
     set chosen to @intrinsic("construct", a pointer to UI source editor)
     set entry to workspace's editors
     loop while entry != @intrinsic("construct", a pointer to UI source editor):
-        if ((entry's document needs UI source analysis) or (entry's document's project's entry needs UI source analysis)) or (entry's document has pending UI source queries):
+        if (entry's node = focused) or (((entry's document needs UI source analysis) or (entry's document's project's entry needs UI source analysis)) or (entry's document has pending UI source queries)):
             if UI source element (entry's node) is active within (workspace's instance's description) in (workspace's instance):
                 if (chosen = @intrinsic("construct", a pointer to UI source editor)) or (entry's node = focused):
                     set chosen to entry
         set entry to entry's next
     if chosen = @intrinsic("construct", a pointer to UI source editor):
+        if workspace's client's cursor model != @intrinsic("construct", a pointer to UI language document):
+            return the next UI language work for (workspace's client) analyzing (workspace's client's cursor model's document) at seconds seconds
         return a new UI language work
     return the next UI language work for (workspace's client) analyzing (chosen's document) at seconds seconds
 
@@ -253,7 +255,18 @@ to get [the UI source focus in] {a pointer to UI view:view} [for] {a pointer to 
 
 # Background editors retain their data without starting a language service.
 to get [the next visible UI source work in] {a pointer to UI source workspace:workspace} [in] {a pointer to UI view:view} [at] {floating-point number:seconds} [seconds]:
+    set editor to workspace's editors
+    set active to false
+    loop while editor != @intrinsic("construct", a pointer to UI source editor):
+        if (((view's active) and (view's keyboard focus)) and (view's text focus = editor's node)) and (editor's document's available):
+            if UI source element (editor's node) is active within (workspace's instance's description) in (workspace's instance):
+                set layout to the UI layout for element (editor's node) in view
+                if view's selection's caret source = (the address of (layout's text source)):
+                    synchronize UI source workspace workspace at seconds seconds
+                    set the UI language cursor in (workspace's client) to (editor's document) at byte (view's selection's caret)
+                    set active to true
+        set editor to editor's next
+    if active = false:
+        clear the UI language cursor in (workspace's client)
     set focused to the UI source focus in view for workspace
-    if focused = (0 as UI reference):
-        return a new UI language work
     return the next UI source workspace work in workspace focused on focused at seconds seconds

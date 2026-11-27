@@ -1,6 +1,6 @@
 # Language results use UTF-16 coordinates in the wrapped source. Controls use UTF-8
 # bytes in the visible source. All editor features share this mapping.
-import source_documents.dl
+import source_changes.dl
 import ../../dynlex-ui/ui/text_colors.dl
 import source_token_styles.dl
 import lib/unicode.dl
@@ -104,17 +104,7 @@ to get [the UI analysis position for source byte] {integer:offset} [in] {a point
     require condition (0 <= offset <= document's source's length) reporting "An editor request is outside its visible source"
     set source to document's prefix + document's source
     set absolute to document's prefix's length + offset
-    scan lines in source and set scanned to it
-    require condition (scanned succeeded) reporting "The editor source is not valid UTF-8"
-    set lines to the line index of scanned
-    set row to the line number at byte offset absolute in lines
-    require condition (row succeeded) reporting "An editor request is outside its analysis document"
-    set start to the start of line (row's position) in lines
-    set content to the substring of source from (start's position) spanning (absolute - start's position) bytes
-    set position to the UTF-16 position of UTF-8 byte offset (content's length) in content
-    require condition (position succeeded) reporting "An editor request splits a Unicode character"
-    free lines
-    return an LSP position at line (row's position) and character (position's position)
+    return the UI language position at byte absolute in source
 
 to get [the UI source span from] {integer:start} [to] {integer:end} [in] {a pointer to UI source document:document}:
     require condition (end >= start) reporting "A language source range is reversed"

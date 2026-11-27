@@ -1,0 +1,14 @@
+import ../../../editor/source_changes.dl
+
+to [expect UI language change from] {string:before} [to] {string:after} [matching] {string:expected}:
+    set change to the UI language content change from before to after
+    require condition ((the compact JSON form of change) = expected) reporting "A source replacement lost its precise UTF-16 range"
+    free change
+
+expect UI language change from "# 🌍\r\nvalueé🦊z\r\nnext" to "# 🌍\r\nvalueê🦊z\r\nnext" matching "{\"range\":{\"start\":{\"line\":1,\"character\":5},\"end\":{\"line\":1,\"character\":6}},\"text\":\"ê\"}"
+expect UI language change from "🦊x" to "🦊 x" matching "{\"range\":{\"start\":{\"line\":0,\"character\":2},\"end\":{\"line\":0,\"character\":2}},\"text\":\" \"}"
+expect UI language change from "a\r\nb" to "a\rX\nb" matching "{\"range\":{\"start\":{\"line\":0,\"character\":1},\"end\":{\"line\":1,\"character\":0}},\"text\":\"\\rX\\n\"}"
+expect UI language change from "a\r\nb" to "a\nb" matching "{\"range\":{\"start\":{\"line\":0,\"character\":1},\"end\":{\"line\":1,\"character\":0}},\"text\":\"\\n\"}"
+expect UI language change from "a\nb" to "a\n" matching "{\"range\":{\"start\":{\"line\":1,\"character\":0},\"end\":{\"line\":1,\"character\":1}},\"text\":\"\"}"
+expect UI language change from "a\nb" to "a\nb" matching "{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":1,\"character\":1}},\"text\":\"\"}"
+print line "Source replacements preserve Unicode, CRLF and single-line UTF-16 ranges."

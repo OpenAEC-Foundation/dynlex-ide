@@ -1,0 +1,1 @@
+Source replacements preserve Unicode, CRLF and single-line UTF-16 ranges.

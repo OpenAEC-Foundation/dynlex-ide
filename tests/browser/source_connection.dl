@@ -28,11 +28,12 @@ to [finish source test work] {UI language work:work} [in] {a pointer to UI langu
 
 to [analyze source test document] {a pointer to UI source document:document} [in] {a pointer to UI language client:client}:
     set count to 0
-    loop while (document needs UI source analysis) or (document has pending UI source queries):
+    loop while true:
         increment count
         require condition (count < 100) reporting "A shared source model kept requeuing analysis"
         set work to the next UI language work for client analyzing document at 1000.0 seconds
-        require condition (work's step != 0) reporting "A dirty source model produced no language work"
+        if work's step = 0:
+            return nothing
         finish source test work work in client
 
 set lead to the string form of "import helper.dl\n@intrinsic(\"discard\", "
@@ -65,6 +66,42 @@ edit UI source document main to (lead + "echo \"a`b``c\")") at 2.0 seconds
 set query to request UI source feature "textDocument/hover" at byte (lead's length + 6) in main
 analyze source test document main in client
 require condition ((the UI source hover text of (query's result)) = "type:\n\na pointer to a byte\n\nvalue: \"a`b``c\"") reporting "The real hover connection changed literal backticks in a source value."
+
+# Single-line drafts keep their last committed semantic context and diagnostics.
+set committed to main's source
+set caret to lead's length + 5
+set the UI language cursor in client to main at byte caret
+analyze source test document main in client
+edit UI source document main to (lead + "echo )") at 3.0 seconds
+set the UI language cursor in client to main at byte (lead's length + 5)
+analyze source test document main in client
+require condition (main's diagnostics' length = 0) reporting "An unfinished active line replaced the committed diagnostic snapshot"
+set query to request UI source feature "textDocument/hover" at byte (imported's length - 7) in helper
+analyze source test document helper in client
+require condition ((query's ready) and (query's result's kind != the JSON null kind)) reporting "Typing an unfinished main line discarded imported inference"
+set the UI language cursor in client to main at byte 0
+analyze source test document main in client
+require condition (main's diagnostics' length > 0) reporting "Leaving the active line did not commit its errors"
+set the UI language cursor in client to main at byte caret
+analyze source test document main in client
+edit UI source document main to committed at 4.0 seconds
+analyze source test document main in client
+require condition (main's diagnostics' length > 0) reporting "An uncommitted repair discarded the preceding diagnostic snapshot"
+clear the UI language cursor in client
+analyze source test document main in client
+require condition (main's diagnostics' length = 0) reporting "Leaving the editor did not commit a repaired line"
+
+# Imported writable files use the same connection and committed-line protocol.
+set helper's writable to true
+set caret to imported's length - 7
+set the UI language cursor in client to helper at byte caret
+analyze source test document helper in client
+edit UI source document helper to ("function echo {value}:\n    execute:\n        @intrinsic(\"return\", )\n") at 5.0 seconds
+analyze source test document helper in client
+require condition (main's diagnostics' length = 0) reporting "An imported draft reset the committed main context"
+clear the UI language cursor in client
+analyze source test document helper in client
+require condition ((main's diagnostics' length + helper's diagnostics' length) > 0) reporting "Leaving an imported line did not commit its errors"
 
 free UI language client client
 free UI source project (main's project)

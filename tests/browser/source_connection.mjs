@@ -20,7 +20,7 @@ try {
     module.ccall('dynlex_web_init');
     const file=path.join(directory,'client.wasm');
     execFileSync(path.join(checkout,'build/dynlex'),['tests/browser/source_connection.dl',
-      '--emit-wasm',optimization,'-o',file],{timeout:60000});
+      '--no-incremental','--emit-wasm',optimization,'-o',file],{timeout:60000});
     const bytes=await fs.readFile(file),output=[],exchanges=[];
     const runtime=buildRuntimeImports(output,createRuntimeFilesystem(),inspectRuntimeWasmLayout(bytes));
     const allocation=observeAllocations(runtime,4*1024*1024);
@@ -57,12 +57,21 @@ try {
       'Viewing imported code closed the main source');
     const hovers=messages.filter(entry=>entry.payload.message.method==='textDocument/hover')
       .map(entry=>entry.response.find(message=>message.id===12 && !message.method)?.result);
-    assert.equal(hovers.length,3);
+    assert.equal(hovers.length,4);
     assert.match(JSON.stringify(hovers[0]),/integer/i,'The imported parameter lost its integer instance');
     assert.match(JSON.stringify(hovers[1]),/a pointer to a byte/i,'The imported parameter retained its preceding main-file instance');
+    assert.match(JSON.stringify(hovers[3]),/a pointer to a byte/i,'An unfinished draft replaced imported inference');
     assert.equal(hovers[2].contents.value, 'type:\n\n```dynlex\na pointer to a byte\n```\n\nvalue: ```"a`b``c"```');
     const changes=messages.filter(entry=>entry.payload.message.method==='textDocument/didChange');
-    assert.deepEqual(changes.map(entry=>entry.payload.message.params.textDocument.uri),['file:///workspace/main.dl','file:///workspace/main.dl']);
+    assert.deepEqual(changes.map(entry=>entry.payload.message.params.textDocument.uri),['file:///workspace/main.dl','file:///workspace/main.dl','file:///workspace/main.dl','file:///workspace/main.dl',
+      'file:///workspace/main.dl','file:///workspace/helper.dl']);
+    assert(changes.every(entry=>entry.payload.message.params.contentChanges.every(change=>change.range)),
+      'Normal source changes must carry precise UTF-16 ranges');
+    for(const change of [changes[2],changes[3],changes.at(-1)])
+      assert(!change.response.some(message=>message.method==='textDocument/publishDiagnostics'),
+        'Editing a locked line recompiled the project');
+    const cursors=messages.filter(entry=>entry.payload.message.method==='dynlex/activeCursorChanged');
+    assert(cursors.length>=6,'The connection omitted line entry, leave, or blur notifications');
     console.log('PASS real shared language connection',optimization);
   }
 } finally {await fs.rm(directory,{recursive:true,force:true});}

@@ -1,0 +1,46 @@
+# One connection owns one active line; moving within it needs no notification.
+import source_changes.dl
+import source_language_types.dl
+
+to [set the UI language cursor in] {a pointer to UI language client:client} [to] {a pointer to UI source document:document} [at byte] {integer:offset}:
+    if ((client's cursor document = document) and (client's cursor byte = offset)) and (client's cursor revision = document's revision):
+        return nothing
+    set position to the UI language position at byte (document's prefix's length + offset) in (document's prefix + document's source)
+    set client's cursor document to document
+    set client's cursor byte to offset
+    set client's cursor revision to document's revision
+    set client's cursor line to (the JSON number named "line" in position) as an integer
+    set client's cursor character to (the JSON number named "character" in position) as an integer
+    free position
+
+to [clear the UI language cursor in] {a pointer to UI language client:client}:
+    set client's cursor document to @intrinsic("construct", a pointer to UI source document)
+
+to get {a pointer to UI language client:client} [needs UI language cursor work]:
+    set model to client's cursor model
+    if client's cursor document = @intrinsic("construct", a pointer to UI source document):
+        return model != @intrinsic("construct", a pointer to UI language document)
+    if model = @intrinsic("construct", a pointer to UI language document):
+        return true
+    return (model's document != client's cursor document) or (client's sent cursor line != client's cursor line)
+
+to get [the UI language cursor parameters in] {a pointer to UI language client:client}:
+    set parameters to a JSON object containing [JSON text "clientId" is (client's root)]
+    set document to client's cursor document
+    set client's cursor model to @intrinsic("construct", a pointer to UI language document)
+    if document != @intrinsic("construct", a pointer to UI source document):
+        set model to the UI language model for document in client
+        require condition (model's opened) reporting "An editor cursor requires an open language document"
+        set position to an LSP position at line (client's cursor line) and character (client's cursor character)
+        # If edits arrived during initialization, lock their old location before
+        # sending the replacement, then move to the current caret afterwards.
+        if model's snapshot != (document's prefix + document's source):
+            set edit to the UI source replacement from (model's snapshot) to (document's prefix + document's source)
+            free position
+            set position to the UI language position at byte (edit's start) in (model's snapshot)
+        set client's cursor model to model
+        set client's sent cursor line to (the JSON number named "line" in position) as an integer
+        add JSON-RPC member "uri" containing (a new JSON-RPC text for (model's uri)) to parameters
+        add JSON-RPC member "version" containing (a new JSON-RPC integer for (model's version)) to parameters
+        add JSON-RPC member "position" containing position to parameters
+    return parameters

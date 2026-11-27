@@ -233,7 +233,8 @@ to [edit UI source document] {a pointer to UI source document:document} [to] {st
         set project to document's project
         if (document != project's entry) and (document's writable):
             set JSON member (JSON text (document's filename) is source) in (project's files)
-            refresh the context of UI source project project
+            # Open-document edits travel over LSP; only configuration changes
+            # replace the project transport and its import snapshot.
         invalidate UI source project (document's project)
 
 # Reconfiguration consumes profiles; files are borrowed and copied.

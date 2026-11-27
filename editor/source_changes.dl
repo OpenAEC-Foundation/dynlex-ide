@@ -1,0 +1,68 @@
+# Minimal replacements preserve single-line edits and Unicode boundaries.
+import source_documents.dl
+import lib/unicode.dl
+import lib/utf8.dl
+
+class:
+    patterns:
+        UI source replacement
+    members:
+        start as an integer
+        end as an integer
+        text as a string
+
+to get [the UI source replacement from] {string:before} [to] {string:after}:
+    set start to 0
+    set matching to true
+    loop while (start < (the minimum of (before's length) and (after's length))) and matching:
+        set first to the UTF8 character at start in before
+        set last to the UTF8 character at start in after
+        require condition (first's valid and last's valid) reporting "Source edits must contain valid UTF-8"
+        if first's code = last's code:
+            set start to first's next
+        else:
+            set matching to false
+    set {first end} to before's length
+    set {last end} to after's length
+    set matching to true
+    loop while ((first end > start) and (last end > start)) and matching:
+        set first to the previous UTF8 boundary before first end in before
+        set last to the previous UTF8 boundary before last end in after
+        if (the UTF8 character at first in before)'s code = (the UTF8 character at last in after)'s code:
+            set first end to first
+            set last end to last
+        else:
+            set matching to false
+    # LSP positions cannot address the middle of a CRLF terminator.
+    if (start > 0) and (start < before's length):
+        if (((the character at (start - 1) in before) as an integer) = 13) and (((the character at start in before) as an integer) = 10):
+            decrement start
+    set split to false
+    if (first end > 0) and (first end < before's length):
+        set split to (((the character at (first end - 1) in before) as an integer) = 13) and (((the character at first end in before) as an integer) = 10)
+    if (last end > 0) and (last end < after's length):
+        set split to split or ((((the character at (last end - 1) in after) as an integer) = 13) and (((the character at last end in after) as an integer) = 10))
+    if split:
+        increment first end
+        increment last end
+    return @intrinsic("construct", UI source replacement, start, first end, the substring of after from start spanning (last end - start) bytes)
+
+to get [the UI language position at byte] {integer:offset} [in] {string:source}:
+    scan lines in source and set scanned to it
+    require condition (scanned succeeded) reporting "The editor source is not valid UTF-8"
+    set lines to the line index of scanned
+    set row to the line number at byte offset offset in lines
+    require condition (row succeeded) reporting "An editor request is outside its analysis document"
+    set start to the start of line (row's position) in lines
+    set content to the substring of source from (start's position) spanning (offset - start's position) bytes
+    set position to the UTF-16 position of UTF-8 byte offset (content's length) in content
+    require condition (position succeeded) reporting "An editor request splits a Unicode character"
+    free lines
+    return an LSP position at line (row's position) and character (position's position)
+
+to get [the UI language content change from] {string:before} [to] {string:after}:
+    set edit to the UI source replacement from before to after
+    return a JSON object containing [
+        JSON child "range" is (a JSON object containing [JSON child "start" is (the UI language position at byte (edit's start) in before), JSON child "end" is (the UI language position at byte (edit's end) in before)]),
+        JSON text "text" is (edit's text)
+    ]

@@ -31,6 +31,13 @@ class:
         models as a pointer to UI language document
         model as a pointer to UI language document
         desired as a pointer to UI source document
+        cursor document as a pointer to UI source document
+        cursor byte as an integer
+        cursor revision as an integer
+        cursor line as an integer
+        cursor character as an integer
+        cursor model as a pointer to UI language document
+        sent cursor line as an integer
         project context as a string
         profiles as a string
         token types as a pointer to JSON value
@@ -67,6 +74,7 @@ to get [the UI language model for] {a pointer to UI source document:document} [i
     return model
 
 to [forget UI language models in] {a pointer to UI language client:client}:
+    set client's cursor model to @intrinsic("construct", a pointer to UI language document)
     set model to client's models
     loop while model != @intrinsic("construct", a pointer to UI language document):
         set next to model's next

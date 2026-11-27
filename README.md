@@ -39,12 +39,15 @@ call-stack row to inspect that frame and source location. Click an expandable
 variable row to inspect fields, array elements or a pointer's target. The current
 statement is highlighted in yellow; breakpoints are marked in red. Editing source,
 changing the project or leaving Studio stops the current debug session.
+Stepping opens unvisited project and library files automatically; library source
+stays read-only.
 
 Browser debugging requires JavaScript Promise Integration for WebAssembly
 (`WebAssembly.Suspending` and `WebAssembly.promising`). Use a current browser
 with those APIs enabled. Shader programs use the shader preview controls.
 
-Choose **＋ Add Library** to search the library catalog, select a library and add
+Choose **File → Add library** or **Add library** in the Files panel to search the
+library catalog, select a library and add
 it under an import name such as `ui`. The picker also accepts a GitHub repository,
 SDK archive URL or local folder. Installed libraries have Update, Remove and
 Documentation actions; their source is read-only under Libraries. Project drafts

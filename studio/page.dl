@@ -113,12 +113,13 @@ website page IDE page at "/ide/index.html" titled "DynLex Studio" described "Wri
                                         command link "Browse local folder…" titled "Browse local folder…" with icon "folder" to "action:library-folder" using IDE command appearance
                                         command link "Close library picker" titled "Close library picker" with icon "clear" to "action:close-library-picker" using IDE command appearance
                                 view group "Installed project libraries" using no UI appearance:
-                                    paragraph "Installed libraries label" containing "Installed libraries" using IDE signal appearance
-                                    choice field "Installed library" choosing "":
-                                    command menu "Library actions" titled "Actions" using IDE secondary command appearance:
-                                        command link "Update library" titled "Update library" with icon "reset" to "action:update-library" using IDE command appearance
-                                        command link "Remove library" titled "Remove library" with icon "delete" to "action:remove-library" using IDE command appearance
-                                        command link "Library documentation" titled "Library documentation" with icon "docs" to "action:library-documentation" using IDE command appearance
+                                    region "Installed library controls" using IDE panel content appearance:
+                                        paragraph "Installed libraries label" containing "Installed libraries" using IDE signal appearance
+                                        choice field "Installed library" choosing "":
+                                        command menu "Library actions" titled "Actions" using IDE secondary command appearance:
+                                            command link "Update library" titled "Update library" with icon "reset" to "action:update-library" using IDE command appearance
+                                            command link "Remove library" titled "Remove library" with icon "delete" to "action:remove-library" using IDE command appearance
+                                            command link "Library documentation" titled "Library documentation" with icon "docs" to "action:library-documentation" using IDE command appearance
                                 paragraph "Library status" containing "" using IDE signal appearance
                     tab "Debug":
                         region "Studio debugger" using IDE panel content appearance:
